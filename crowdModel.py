@@ -24,37 +24,36 @@ class MockCrowdPickGetter(CrowdPickGetter):
             allCols.append(newCol)
         return allCols
 
-class Round():
-    def __init__(self, roundNum, teamsProbDictionary):
-        self.roundNum = roundNum
-        self.teamsProbDictionary = teamsProbDictionary
-    
-    def __str__(self):
-        return f"Round {self.roundNum} entries: {self.teamsProbDictionary}"
-    
-    def __repr__(self):
-        return f"Round {self.roundNum} entries: {self.teamsProbDictionary}"
-
-class Rounds():
-    def __init__(self, pickGetter):
+class RoundPicks():
+    def __init__(self):
         self.rounds = [None] * 6
-        self.pickGetter = pickGetter
-    
-    def fillRoundPicks(self):
-        rawRoundInfo = self.pickGetter.getCrowdPicks()
+        
+    def fillRoundPicks(self, pickGetter):
+        rawRoundInfo = pickGetter.getCrowdPicks()
         teams = rawRoundInfo[0]
         roundCtr = 0
         for arr in rawRoundInfo[1:]:
             roundDict = dict(zip(teams, arr))
-            self.rounds[roundCtr] = Round(roundCtr, roundDict)
+            self.rounds[roundCtr] = (roundCtr, roundDict)
             roundCtr += 1
-            
+
+    def __iter__(self):
+        for round in self.rounds:
+            yield round
+
+    def __getitem__(self, roundNumber):
+        return self.rounds[roundNumber]
+
+# testGetter = MockCrowdPickGetter()
+# testRounds = Rounds()
+# testRounds.fillRoundPicks(testGetter)
+
 class PotentialWinnerGetter():
     '''
     This class is built to interact directly with crowdBracketEntry id numbers
     '''
-    def __init__(self):
-        self.rounds = [Round]
+    def __init__(self, rounds = None):
+        self.rounds = rounds
         # Array of dictionaries
             # Each ditionary, or entry in array, will represent a 'round'
             # Where key:value pairs are teams : % of people selecting them to win in this round
@@ -65,23 +64,29 @@ class PotentialWinnerGetter():
     
     def getPotentialWinners(self, roundID):
         """
-        Champ game is '0'
+        Examples of roundID :
+        -Champ game is '0'
             -Stored in in rounds[0]
-        F4 is '00' and '01' 
+        -F4 is '00' and '01' 
             -Stored in rounds[1]
-        E8 is '000', '001', '010', and '011'
+        -E8 is '000', '001', '010', and '011'
             -Stored in rounds[2]
         """
         potentialWinnerList = []
         currentRound = self.determineRound(roundID)
-        for team, chance in currentRound:
+        print(currentRound)
+        for team, probOfAdvance in currentRound:
             matchToRoundIDPart = (currentRound + 1)
             if team[:matchToRoundIDPart] == roundID:
-                potentialWinnerList.append((team, chance))
+                potentialWinnerList.append((team, probOfAdvance))
         return potentialWinnerList
 
     def determineRound(self, roundID):
         return self.rounds[len(roundID) - 1]
+
+
+testPWG = PotentialWinnerGetter()
+print(testPWG.getPotentialWinners('0'))
 
 class crowdBracket():
     def __init__(self):
