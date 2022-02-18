@@ -1,28 +1,10 @@
 import numpy as np
 import math
 import bracketImporter
-from abc import ABC, abstractmethod
-import pandas as pd
+import crowdPickImporter
 
-class CrowdPickGetter():
-    def __init__(self):
-        pass
-
-    @abstractmethod
-    def getRounds(self):
-        pass
-
-class MockCrowdPickGetter(CrowdPickGetter):
-    def __init__(self, input = 'WhoPickedWhom - Mock.xlsx'):
-        self.input = input
-
-    def getCrowdPicks(self):
-        allCols = []
-        df = pd.read_excel(self.input,sheet_name = 'Sheet2', header = None)
-        for col in df.columns:
-            newCol = df[col].to_numpy()
-            allCols.append(newCol)
-        return allCols
+crowdPickerESPN = crowdPickImporter.ESPNCrowdPickGetter()
+crowdPickerMock = crowdPickImporter.MockCrowdPickGetter()
 
 class Rounds():
     def __init__(self):
@@ -65,9 +47,9 @@ class Rounds():
         round = self.rounds[roundIDMapped]
         return (round[0], round[1])
 
-testPickGetter = MockCrowdPickGetter()
-testRounds = Rounds()
-testRounds.fillRoundPicks(testPickGetter)
+# testPickGetter = MockCrowdPickGetter()
+# testRounds = Rounds()
+# testRounds.fillRoundPicks(testPickGetter)
 # print(testRounds.getPotentialWinners('0'))
 
 class crowdBracket():
@@ -119,14 +101,20 @@ class crowdBracket():
             tmpWinner = tmpWinner[1:]
         
 class crowdBracketEntry():
-    def __init__(self, id, bracket, arrayIndex):
+    def __init__(self, id, bracket, arrayIndex, pickGetter):
         self.id = id
         self.arrayIndex = arrayIndex
         self.bracket = bracket
+        self.pickGetter = pickGetter
+        self._rounds = Rounds()
         self._winner = None
         self._potentialWinners = []
         self._choseWinner = False
     
+    def _initializeRounds(self):
+        self._rounds.fillRoundPicks(self.pickGetter)
+    
+
     def __repr__(self):
         return f"Game ID: {self.id}\nBracketArrayIndex: {self.arrayIndex}\nWinner: {self._winner}\nPotential Winners: {self._potentialWinners}"
 
@@ -137,7 +125,7 @@ class crowdBracketEntry():
     def potentialWinners(self):
         idLength = len(self.id)
         if len(self._potentialWinners) == 0:
-            self._potentialWinners = PotentialWinnerGetter.getPotentialWinners(self.id)
+            self._potentialWinners = self._rounds.getPotentialWinners(self.id)
         return self._potentialWinners
     
     @potentialWinners.setter
