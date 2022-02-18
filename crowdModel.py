@@ -24,7 +24,7 @@ class MockCrowdPickGetter(CrowdPickGetter):
             allCols.append(newCol)
         return allCols
 
-class RoundPicks():
+class Rounds():
     def __init__(self):
         self.rounds = [None] * 6
         
@@ -43,24 +43,6 @@ class RoundPicks():
 
     def __getitem__(self, roundNumber):
         return self.rounds[roundNumber]
-
-# testGetter = MockCrowdPickGetter()
-# testRounds = Rounds()
-# testRounds.fillRoundPicks(testGetter)
-
-class PotentialWinnerGetter():
-    '''
-    This class is built to interact directly with crowdBracketEntry id numbers
-    '''
-    def __init__(self, rounds = None):
-        self.rounds = rounds
-        # Array of dictionaries
-            # Each ditionary, or entry in array, will represent a 'round'
-            # Where key:value pairs are teams : % of people selecting them to win in this round
-        
-        # Rounds will be numbered with 1 being championship, or top layer
-        # 6 will be bottom layer
-        pass
     
     def getPotentialWinners(self, roundID):
         """
@@ -69,24 +51,24 @@ class PotentialWinnerGetter():
             -Stored in in rounds[0]
         -F4 is '00' and '01' 
             -Stored in rounds[1]
-        -E8 is '000', '001', '010', and '011'
-            -Stored in rounds[2]
         """
         potentialWinnerList = []
-        currentRound = self.determineRound(roundID)
-        print(currentRound)
-        for team, probOfAdvance in currentRound:
-            matchToRoundIDPart = (currentRound + 1)
-            if team[:matchToRoundIDPart] == roundID:
+        currentRoundNum, currentRoundTeams = self.getTeamProbsInRound(roundID)
+        for team, probOfAdvance in currentRoundTeams.items():
+            matchToRoundID = (currentRoundNum + 1)
+            if team[:matchToRoundID] == roundID:
                 potentialWinnerList.append((team, probOfAdvance))
         return potentialWinnerList
 
-    def determineRound(self, roundID):
-        return self.rounds[len(roundID) - 1]
+    def getTeamProbsInRound(self, roundID):
+        roundIDMapped = len(roundID) - 1
+        round = self.rounds[roundIDMapped]
+        return (round[0], round[1])
 
-
-testPWG = PotentialWinnerGetter()
-print(testPWG.getPotentialWinners('0'))
+testPickGetter = MockCrowdPickGetter()
+testRounds = Rounds()
+testRounds.fillRoundPicks(testPickGetter)
+# print(testRounds.getPotentialWinners('0'))
 
 class crowdBracket():
     def __init__(self):
