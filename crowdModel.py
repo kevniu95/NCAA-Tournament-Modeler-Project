@@ -7,24 +7,40 @@ crowdPickerESPN = crowdPickImporter.ESPNCrowdPickGetter()
 crowdPickerMock = crowdPickImporter.MockCrowdPickGetter()
 
 class Rounds():
-    def __init__(self):
-        self.rounds = [None] * 6
-        
-    def fillRoundPicks(self, pickGetter):
+    def __init__(self, pickGetter):
+        self._rounds = [None] * 6
+        self._pickGetter = pickGetter
+        self._fillRoundPicks()
+    
+    @property
+    def round(self):
+        if self._rounds[0] is None:
+            self._fillRoundPicks()
+        return self._rounds
+
+    @round.setter
+    def round(self, value):
+        print("Rounds information should have been set upon instantiation! Can't reset!")
+        return
+
+    def _fillRoundPicks(self):
+        pickGetter = self._pickGetter
         rawRoundInfo = pickGetter.getCrowdPicks()
+        
         teams = rawRoundInfo[0]
+        
         roundCtr = 0
         for arr in rawRoundInfo[1:]:
             roundDict = dict(zip(teams, arr))
-            self.rounds[roundCtr] = (roundCtr, roundDict)
+            self._rounds[roundCtr] = (roundCtr, roundDict)
             roundCtr += 1
 
     def __iter__(self):
-        for round in self.rounds:
+        for round in self._rounds:
             yield round
 
     def __getitem__(self, roundNumber):
-        return self.rounds[roundNumber]
+        return self._rounds[roundNumber]
     
     def getPotentialWinners(self, roundID):
         """
@@ -35,26 +51,29 @@ class Rounds():
             -Stored in rounds[1]
         """
         potentialWinnerList = []
-        currentRoundNum, currentRoundTeams = self.getTeamProbsInRound(roundID)
+        currentRoundNum, currentRoundTeams = self._getTeamProbsInRound(roundID)
         for team, probOfAdvance in currentRoundTeams.items():
             matchToRoundID = (currentRoundNum + 1)
             if team[:matchToRoundID] == roundID:
                 potentialWinnerList.append((team, probOfAdvance))
         return potentialWinnerList
 
-    def getTeamProbsInRound(self, roundID):
+    def _getTeamProbsInRound(self, roundID):
         roundIDMapped = len(roundID) - 1
-        round = self.rounds[roundIDMapped]
+        round = self._rounds[roundIDMapped]
         return (round[0], round[1])
 
-# testPickGetter = MockCrowdPickGetter()
-# testRounds = Rounds()
-# testRounds.fillRoundPicks(testPickGetter)
-# print(testRounds.getPotentialWinners('0'))
+# testPickGetter = crowdPickerESPN
+# testRounds = Rounds(testPickGetter)
+# for i in testRounds._rounds:
+#     print(i)
+#     print()
+#print(testRounds.getPotentialWinners('0'))
 
 class crowdBracket():
     def __init__(self):
         self.bracketList = [None] * 64
+        self.rounds = Rounds()
     
     def instantiateBracket(self):
         self._instantiateFirstEntry()
@@ -65,7 +84,7 @@ class crowdBracket():
                 currGameID = baseEntryGameID + "0"
             else:
                 currGameID = baseEntryGameID + "1" 
-            self.bracketList[arrayIndex] = crowdBracketEntry(currGameID, self, arrayIndex)
+            self.bracketList[arrayIndex] = crowdBracketEntry(currGameID, arrayIndex, rounds)
         
     def _instantiateFirstEntry(self):
         self.bracketList[1] = crowdBracketEntry("0", self, 1)
@@ -101,19 +120,13 @@ class crowdBracket():
             tmpWinner = tmpWinner[1:]
         
 class crowdBracketEntry():
-    def __init__(self, id, bracket, arrayIndex, pickGetter):
+    def __init__(self, id, arrayIndex, rounds):
         self.id = id
+        self.rounds = rounds
         self.arrayIndex = arrayIndex
-        self.bracket = bracket
-        self.pickGetter = pickGetter
-        self._rounds = Rounds()
         self._winner = None
         self._potentialWinners = []
         self._choseWinner = False
-    
-    def _initializeRounds(self):
-        self._rounds.fillRoundPicks(self.pickGetter)
-    
 
     def __repr__(self):
         return f"Game ID: {self.id}\nBracketArrayIndex: {self.arrayIndex}\nWinner: {self._winner}\nPotential Winners: {self._potentialWinners}"
@@ -199,8 +212,56 @@ class crowdBracketEntry():
 #     print()
 
 
-'''TODO: 
+'''
+2.18 TODO:
+Link up teams from bracketImporter to teams in Rounds information
+    -Or put another way, need to know what actual team IDs are now that we have
+        the "who picked whom" information from the internet
+    -Should be final piece keeping us from simulating "the people" brackets
+    -The Rounds information should ultimately have not just Team ID, but actual
+        team object
 
+Who controls pickgetter? Do I separately instantiate rounds each time and then pass
+    it through to crowdBracket with pickGetter already set? Or should I let crowdBracket
+    instantiate?
+
+Do you want crowdBracket to reset itself or do you want many instances of it?
+    -That might answer above question on pickGetter (b/c you don't want to have
+    to re-instantiate it everytime you make a new crowdBracket)
+
+Should fillRoundPicks also be offloaded? This gets back to decision made yesterday
+    to collapse round instantiation and rest of functionality. Is it reasonable
+    to think importing data will become tough/different enough to warrant becomig its
+    own job?
+-Maybe change back so initializer is contained elsewhere, maybe stored in crowdPickImporter
+module. Does it really seem reasonable to have 7 random arrays, one of which represents teams
+and the other six representing  be the public interface
+that Rounds is leaning on?
+
+2.18
+DID:
+UPSTREAM: 
+-Implemented an actual subclass of CrowdPickGetter that will work on the actual ESPN web format
+-Re-factored code
+    -Round class removed - Round role is served in Rounds by rounds object
+    -Collapsed PotentialWinner-determining class and Round class since both were tied to rounds
+        -PotentialWinner was calculating what Round instantiated
+
+2/17 
+DID:
+DOWNSTREAM
+-In CrowdBracket class (i.e., went further downstream in terms of actually generating simulation)
+    -Implemented TumbleWinnerDown() in CrowdBracket class
+    -Implemented InstantiateTourney()
+
+UPSTREAM
+-Built bracketImporter module to handle generating team ID's based on actual bracket 
+    -(Webscraping to get teams their proper IDs)
+-Built Rounds and Round data structures 
+    -Rounds holds individual Round in array
+    -Round has round number, and team odds of winning in that specific round
+
+2.17 TODO: 
 Keep PotentialWinnerGetter, b/c that does something separate from just holding the rounds data
 
 Rounds data structure that holds the rounds, where each round has:
@@ -219,34 +280,4 @@ Larger bracket structure that integrates many BracketEntries
     -This is where, at very least, need to connect all bracket entries
     -Fill backwards once winner chosen in specific entry
     -Traverse down tree, checking to see if entires are filled
-      
-
-2/17 
-DID:
-DOWNSTREAM
--In CrowdBracket class (i.e., went further downstream in terms of actually generating simulation)
-    -Implemented TumbleWinnerDown() in CrowdBracket class
-    -Implemented InstantiateTourney()
-
-UPSTREAM
--Built bracketImporter module to handle generating team ID's based on actual bracket 
-    -(Webscraping to get teams their proper IDs)
--Built Rounds and Round data structures 
-    -Rounds holds individual Round in array
-    -Round has round number, and team odds of winning in that specific round
-
-
--
-
-TODO:
-Link up teams from bracketImporter to teams in Rounds information
-    -Or put another way, need to know what actual team IDs are now that we have
-        the "who picked whom" information from the internet
-    -Should be final piece keeping us from simulating "the people" brackets
-    -The Rounds information should ultimately have not just Team ID, but actual
-        team object
-
-Will also need to implement an actual subclass of CrowdPickGetter that will
-    work on the actual ESPN web format
-
 ''' 
