@@ -10,10 +10,10 @@ class Team():
         self.region = region
     
     def __str__(self):
-        return f"Team {self.id:>07b};{self.name};{self.region};{self.seed}"
+        return f"Team {self.id:>07b};{self.name};{self.region};{self.seed}\n"
 
     def __repr__(self):
-        return f"Team {self.id:>07b};{self.name};{self.region};{self.seed}"
+        return f"Team {self.id:>07b};{self.name};{self.region};{self.seed}\n"
 
 
 class bracketImporter():
@@ -67,3 +67,6 @@ class bracketImporterBracketologyESPN(bracketImporter):
         if teamName.endswith(' - aq'):
             teamName = teamName[:-5]
         return seed, teamName
+
+test = bracketImporterBracketologyESPN()
+print(test.teams)

@@ -13,17 +13,19 @@ class CrowdPickGetter():
     def getRounds(self):
         pass
 
-class MockCrowdPickGetter(CrowdPickGetter):
-    def __init__(self, input = 'WhoPickedWhom - Mock.xlsx'):
-        self.input = input
+# Per Open-Closed / Liskov:
+# This needs same output style as ESPNCrowdPickGetter if you want to use it
 
-    def getCrowdPicks(self):
-        allCols = []
-        df = pd.read_excel(self.input,sheet_name = 'Sheet2', header = None)
-        for col in df.columns:
-            newCol = df[col].to_numpy()
-            allCols.append(newCol)
-        return allCols
+# class MockCrowdPickGetter(CrowdPickGetter):
+#     def __init__(self, input = 'WhoPickedWhom - Mock.xlsx'):
+#         self.input = input
+#     def getCrowdPicks(self):
+#         allCols = []
+#         df = pd.read_excel(self.input,sheet_name = 'Sheet2', header = None)
+#         for col in df.columns:
+#             newCol = df[col].to_numpy()
+#             allCols.append(newCol)
+#         return allCols
 
 class ESPNCrowdPickGetter(CrowdPickGetter):
     def __init__(self, url = "https://fantasy.espn.com/tournament-challenge-bracket/2021/en/whopickedwhom#"):
@@ -64,3 +66,10 @@ class ESPNCrowdPickGetter(CrowdPickGetter):
             finalArr.append((teamName, teamProb))
         finalArr.sort()
         return finalArr
+
+
+crowdPickerESPN = ESPNCrowdPickGetter()
+# crowdPickerMock = MockCrowdPickGetter()
+
+print(crowdPickerESPN.getCrowdPicks())
+# print(crowdPickerMock.getCrowdPicks())

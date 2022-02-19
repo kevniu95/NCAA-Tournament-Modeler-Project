@@ -4,7 +4,7 @@ import bracketImporter
 import crowdPickImporter
 
 crowdPickerESPN = crowdPickImporter.ESPNCrowdPickGetter()
-crowdPickerMock = crowdPickImporter.MockCrowdPickGetter()
+# crowdPickerMock = crowdPickImporter.MockCrowdPickGetter()
 
 class Rounds():
     def __init__(self, pickGetter):
