@@ -1,6 +1,6 @@
 # NCAA-Tournament-Modeler-Project
 
-**Project Description**
+**I. Project Description**
 
 The purpose of this project is to help basketball fans ‘test’ their brackets by simulating the NCAA tournament (using pre-determined prediction inputs) and comparing their results against simulated competitors’ data. This should help fans determine what brackets might score well after accounting for:
 1.	What the general public has chosen, and 
@@ -9,7 +9,7 @@ The purpose of this project is to help basketball fans ‘test’ their brackets
 Put another way, this is not so much an exercise in forecasting or estimation, but an exercise in arbitrage. If we trust some expert-generated model as our source of truth, perhaps we can compare that to the typical selections of the general public and take advantage of any discrepancies.
 
 
-**Modules Description**
+**II. Modules Description**
 1. “True” Model – for each possible game in the tournament, have a probability associated with team A beating team B. This is the “true” model that is used to simulate the tournament and will be based off of some widely-accepted input like FiveThirtyEight’s projections, or perhaps by a model I create myself
 	- KNOW: 63 x 64 “true” game probabilities (i.e. predictions)
 	- DO: Simulation of NCAA tournament 
