@@ -1,16 +1,16 @@
 import unittest
-from trueModel import *
+import trueModel
 
 class checkClasses(unittest.TestCase):
     def setUp(self):
-        self.preds = Predictions()
-        self.bracket = Bracket(64, preds)
+        self.preds = trueModel.Predictions()
+        self.bracket = trueModel.Bracket(64, self.preds)
 
-        self.bracketEntry0 = BracketEntry(1)
-        self.bracketEntry1 = BracketEntry(1)
+        self.bracketEntry0 = trueModel.BracketEntry(1)
+        self.bracketEntry1 = trueModel.BracketEntry(1)
         self.bracketEntry1.addTeam('1451')
 
-        self.bracketEntry2 = BracketEntry(1)
+        self.bracketEntry2 = trueModel.BracketEntry(1)
         self.bracketEntry2.addTeam('1451')
         self.bracketEntry2.addTeam('1452')
 

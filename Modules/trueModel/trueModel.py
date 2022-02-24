@@ -6,8 +6,18 @@ from abc import ABC, abstractmethod
 import random
 import math
 
+'''
+2.19 TODO
+1.Fill out bracket as a separate class so you're delegating that out
+    -Then you can switch in different years' brackets
+2. Update with actual bracket when available
+    -Instead of randomly filling first round in Bracket class
+'''
+
 class PredictionsGenerator():
-    # << Predictions Generator >>
+    """
+    << Predictions Generator >>
+    """
     def __init__(self, fileName):
         self.file = fileName
         self.probabilities = self.generateProbabilities()
@@ -17,11 +27,13 @@ class PredictionsGenerator():
         pass
 
 class KagglePredictionsGenerator(PredictionsGenerator):
-    # Concrete for <<PredictionsGenerator>>
-    # KNOW: Kaggle Input Data
-    # Do: Produce dictionary to be passed to be GamePredictions class
-        # key              :   value
-        # (teamid, teamid) :   0.5
+    """
+    Concrete subclass for <<PredictionsGenerator>>
+    KNOW: Any Kaggle Input Data
+    DO: Produce dictionary to be passed to be GamePredictions class
+            {key              :   value}
+        Ex. {(teamid, teamid) :   0.5}
+    """
     def __init__(self, fileName):
         super().__init__(fileName)
         
@@ -37,11 +49,14 @@ class KagglePredictionsGenerator(PredictionsGenerator):
         return probDictionary    
 
 class Predictions():
+    """
+    Class that encapsulates choosing a concrete set of predictions
+    (Separated from KagglePredictionsGenerator in case predictions come in another form)
+    """
     def __init__(self):
         self._predictions = self.initializePredictions()
     
-    def initializePredictions(self):
-        generator = KagglePredictionsGenerator('testPredictions.csv')
+    def initializePredictions(self, generator = KagglePredictionsGenerator('testPredictions.csv')):
         return generator.probabilities
 
     @property
@@ -54,6 +69,11 @@ class Predictions():
         return
     
 class Game():
+    """
+    Describes a general game between two basketball teams
+    - Contains information on two teams by ID
+    - Retrieves predictions from object of Predictions class and simulates an outcome
+    """
     def __init__(self, team1, team2):
         self.team1 = team1
         self.team2 = team2
@@ -84,6 +104,13 @@ class Game():
         return f"{self.team1} vs. {self.team2}"
         
 class BracketEntry():
+    """
+    Wraps object of Game class in a BracketEntry
+    -Takes teams one by one and instantiates a game 
+        when two teams added two BracketEntry object
+    -Identifies winner of game
+    -Identifies next game in bracket (where winner advances to)
+    """
     def __init__(self, index):
         self.index = index
         self.team1 = None
@@ -130,6 +157,21 @@ class BracketEntry():
         return f"{self.index}: {self.game}"
 
 class Bracket():
+    """"
+    Organized collection of BracketEntry objects, representing
+        the NCAA Tournament bracket
+    -Maintains gameBracket with matchups and winnerBracket showing
+        winners of those matchups
+    -For now first round is randomly determined given predictions data
+
+    Bracket Structure (used in gameBracket and winnerBracket):
+    -Bracket is represented by n-entry array where n is number of teams
+        in tournament (meaning there are n-1 games)
+    -Championship game is at index 1 (0 left empty)
+        -Semifinal games start at index 2
+        -Quarterfinal games start at index 4....
+    -First round of games is "contained" in array entries 31 - 63
+    """
     def __init__(self, size, predictions):
         self.size = size
         self.gameBracket = [None] * size
@@ -158,6 +200,9 @@ class Bracket():
         
     @property
     def round(self):
+        """
+        Maintains state indicating which round is currently being processed
+        """
         ctr = 0
         for num, i in enumerate(self.gameBracket):
             if i is not None:
@@ -170,6 +215,11 @@ class Bracket():
         return
 
     def _simulateRound(self):
+        """
+        Simulates current round by finding all BracketEntries associated with round
+            and simulating games
+        Advances winners of games in next round
+        """
         thisRoundSize = self.size / (2 ** self.round) 
         
         if (thisRoundSize == int(thisRoundSize) and (thisRoundSize % 2 == 0)) or (thisRoundSize == 1):
@@ -205,13 +255,30 @@ class Bracket():
         self.winnerBracket = [None] * self.size
         self.randomlyFillFirstRound()
     
-'''
-2.19 TODO
-Fill out bracket as a separate class so you're delegating that out
-    -Then you can switch in different years' brackets
-'''
-preds = Predictions()
-test = Bracket(64, preds)
-test.randomlyFillFirstRound()
-test.simulateTournament(reset = False)
-print(test.winnerBracket)
+if __name__ == "__main__":
+
+    """
+    A. Import predictions 
+    -Based on sample predictions for all 64*63 games in 2021 NCAA Tournament
+    """
+    predictions = Predictions()
+    for game, leftTeamWinProb in predictions.predictions.items():
+        print(f"Teams involved: {game}\nProbability left team wins: {leftTeamWinProb}\n")
+    
+    """
+    B. Create Bracket
+    - Note bracket randomly created given set of 64 teams
+    - Will update for 2022 NCAA Tournament
+    """
+    testBracket = Bracket(64, predictions)
+    # Note that game bracket has half-filled (all first round games)
+    print(testBracket.gameBracket)
+    # But winner braket is unfilled
+    print(testBracket.winnerBracket)
+
+    """
+    C. Simulate Tournament
+    """
+    testBracket.simulateTournament(reset = False)
+    print(testBracket.gameBracket)
+    print(testBracket.winnerBracket)

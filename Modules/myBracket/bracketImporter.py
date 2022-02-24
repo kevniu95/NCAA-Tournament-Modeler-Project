@@ -3,6 +3,9 @@ from bs4 import BeautifulSoup
 from abc import ABC, abstractmethod
 
 class Team():
+    """
+    Class representing NCAA Tournament Team
+    """
     def __init__(self, id, name, region, seed):
         self.id = id
         self.name = name
@@ -10,13 +13,15 @@ class Team():
         self.region = region
     
     def __str__(self):
-        return f"Team {self.id:>07b};{self.name};{self.region};{self.seed}\n"
+        return f"Team {self.id:>07b}; {self.name}; {self.region}; {self.seed}"
 
     def __repr__(self):
-        return f"Team {self.id:>07b};{self.name};{self.region};{self.seed}\n"
-
+        return f"Team {self.id:>07b}; {self.name}; {self.region}; {self.seed}"
 
 class bracketImporter():
+    """
+    Abstract bracketImporter class 
+    """
     def __init__(self):
         self.teams = [None] * 64
     
@@ -25,6 +30,10 @@ class bracketImporter():
         pass
 
 class bracketImporterBracketologyESPN(bracketImporter):
+    """
+    Subclass of bracketImporter built to import ESPN
+    bracketology web page
+    """
     def __init__(self, bracketologyURL = "http://www.espn.com/mens-college-basketball/bracketology"):
         super().__init__()
         self.bracketologyURL = bracketologyURL
@@ -68,5 +77,8 @@ class bracketImporterBracketologyESPN(bracketImporter):
             teamName = teamName[:-5]
         return seed, teamName
 
-test = bracketImporterBracketologyESPN()
-print(test.teams)
+
+if __name__ == "__main__":
+    testImport = bracketImporterBracketologyESPN()
+    for teamEntry in testImport.teams:
+        print(teamEntry)
