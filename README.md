@@ -2,12 +2,11 @@
 
 **I. Project Description**
 
-The purpose of this project is to help basketball fans ‘test’ their brackets by simulating the NCAA tournament (using pre-determined prediction inputs) and comparing users' brackets against simulated competitors’ data. This should help fans determine what brackets might score well after accounting for:
-1.	What the general public has chosen, and 
-2.	What models think the “true” probabilities are for all possible games in the tournament.
+The purpose of this project is to help basketball fans "test" their brackets by (1) simulating the NCAA tournament and (2) comparing users' brackets against simulated competitors’ data. This should help fans determine what brackets might score well after accounting for:
+1.	What models say the “true” probabilities are for all possible games in the tournament.
+2.	What the general public has chosen, and 
 
-Put another way, this is not so much an exercise in forecasting or estimation, but an exercise in arbitrage. If we trust some expert-generated model as our source of truth, perhaps we can compare that to the selections of the general public and take advantage of any discrepancies.
-
+Put another way, this is not so much an exercise in forecasting or estimation - even the most casual fan can get their hands on a set of reasonable projections fairly easily (see [FiveThirtyEight](https://projects.fivethirtyeight.com/2021-march-madness-predictions/)). Instead, this is more of an exercise in arbitrage. If we trust some expert-generated model as our source of truth, can we still identify any discrepancies with the general public's picks and take advantage?
 
 **II. Modules Description**
 1. Crowd Simulator – This takes as input, ESPN’s [Who Picked Whom](https://fantasy.espn.com/tournament-challenge-bracket/2022/en/whopickedwhom) numbers that list how many people pick each team to move to the next round. The idea is to work backwards from this aggregated view to realistic simulations of individual entries. This provides the user a reasonable pool to compare their own bracket against.
