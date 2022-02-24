@@ -17,15 +17,12 @@ Put another way, this is not so much an exercise in forecasting or estimation, b
 2. “True” Model – After simulating a competitor pool, we still need to be able to score a user's bracket entry against these competitors. To do this, we take a set of predictions to be our source of truth. This "source of truth model" will have, for each possible game in the tournament, have probability associated with team A beating team B.
 	- KNOW: 63 x 64 “true” game probabilities (i.e. predictions)
 	- DO: Simulation of NCAA tournament 
-	- Existing Python Modules:
-		-trueModel.py
-		-trueModelTest.py
+	- Existing Python Modules: trueModel.py, trueModelTest.py
 
 3. My Bracket – This will make it easy to upload a user's own bracket entry from, say, ESPN
 	- KNOW: Some web page or other input with bracket input
 	- DO: Produce a data structure representing the user’s NCAA tournament bracket selection
-	- Existing Python Modules:
-	 	-bracketImporter.py
+	- Existing Python Modules: bracketImporter.py
 
 4. Bracket Scorer- this will score filled-out bracket predictions (be they simulated or input by the user) and score them against the “True” model simulations that will be run
 	-KNOW: Underlying “true” model, some filled-out bracket
