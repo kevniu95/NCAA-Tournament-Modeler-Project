@@ -84,7 +84,7 @@ class crowdBracket():
                 currGameID = baseEntryGameID + "0"
             else:
                 currGameID = baseEntryGameID + "1" 
-            self.bracketList[arrayIndex] = crowdBracketEntry(currGameID, arrayIndex, rounds)
+            self.bracketList[arrayIndex] = crowdBracketEntry(currGameID, arrayIndex, self.rounds)
         
     def _instantiateFirstEntry(self):
         self.bracketList[1] = crowdBracketEntry("0", self, 1)
@@ -213,6 +213,27 @@ class crowdBracketEntry():
 
 
 '''
+2.19 TODO: 
+Re-factor so that Round initialization is sent back to crowdPickImporter module.
+    (May require a new class or two)
+Final output provided by last class in CrowdPickImporter module should be:
+    Initialized Rounds object with 6 arrays
+        -Each Round has list of 64 tuples (Team, prob of winning in round)
+            -Where Team is an actual Team object as we have in bracketImporter module
+For all future CrowdPickGetters, this should be final output sent to Rounds class in 
+    this file. Rounds module can safely rely on this expected format and will be responsible 
+    solely for determing potential winners and passing downstream.
+
+Finish logic for simulating a fan-picked tournament
+Import custom-filled bracket?
+    -How else can we evaluate potential candidates here?
+Score brackets
+Create environment that compares fan-picked tournaments vs custom bracket
+    using trueModel as point of comparison
+
+
+
+
 2.18 TODO:
 Link up teams from bracketImporter to teams in Rounds information
     -Or put another way, need to know what actual team IDs are now that we have
@@ -220,14 +241,8 @@ Link up teams from bracketImporter to teams in Rounds information
     -Should be final piece keeping us from simulating "the people" brackets
     -The Rounds information should ultimately have not just Team ID, but actual
         team object
-
-Who controls pickgetter? Do I separately instantiate rounds each time and then pass
-    it through to crowdBracket with pickGetter already set? Or should I let crowdBracket
-    instantiate?
-
-Do you want crowdBracket to reset itself or do you want many instances of it?
-    -That might answer above question on pickGetter (b/c you don't want to have
-    to re-instantiate it everytime you make a new crowdBracket)
+    -Do this as a new class in crowdPickImporter, result could be (Team, prob) tuple for each
+        round instead of (ID, prob)
 
 Should fillRoundPicks also be offloaded? This gets back to decision made yesterday
     to collapse round instantiation and rest of functionality. Is it reasonable
@@ -237,6 +252,16 @@ Should fillRoundPicks also be offloaded? This gets back to decision made yesterd
 module. Does it really seem reasonable to have 7 random arrays, one of which represents teams
 and the other six representing  be the public interface
 that Rounds is leaning on?
+
+
+Who controls pickgetter? Do I separately instantiate rounds each time and then pass
+    it through to crowdBracket with pickGetter already set? Or should I let crowdBracket
+    instantiate?
+
+Do you want crowdBracket to reset itself or do you want many instances of it?
+    -That might answer above question on pickGetter (b/c you don't want to have
+    to re-instantiate it everytime you make a new crowdBracket)
+
 
 2.18
 DID:

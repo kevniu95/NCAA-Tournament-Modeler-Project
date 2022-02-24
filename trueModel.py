@@ -204,7 +204,12 @@ class Bracket():
         self.gameBracket = [None] * self.size
         self.winnerBracket = [None] * self.size
         self.randomlyFillFirstRound()
-        
+    
+'''
+2.19 TODO
+Fill out bracket as a separate class so you're delegating that out
+    -Then you can switch in different years' brackets
+'''
 preds = Predictions()
 test = Bracket(64, preds)
 test.randomlyFillFirstRound()
