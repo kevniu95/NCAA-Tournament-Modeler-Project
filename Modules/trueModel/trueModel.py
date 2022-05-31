@@ -53,11 +53,12 @@ class Predictions():
     Class that encapsulates choosing a concrete set of predictions
     (Separated from KagglePredictionsGenerator in case predictions come in another form)
     """
-    def __init__(self):
+    def __init__(self, generator = KagglePredictionsGenerator('testPredictions.csv')):
+        self.generator = generator
         self._predictions = self.initializePredictions()
     
-    def initializePredictions(self, generator = KagglePredictionsGenerator('testPredictions.csv')):
-        return generator.probabilities
+    def initializePredictions(self):
+        return self.generator.probabilities
 
     @property
     def predictions(self):
@@ -172,7 +173,7 @@ class Bracket():
         -Quarterfinal games start at index 4....
     -First round of games is "contained" in array entries 31 - 63
     """
-    def __init__(self, size, predictions):
+    def __init__(self, predictions, size = 64):
         self.size = size
         self.gameBracket = [None] * size
         self.winnerBracket = [None] * size
@@ -270,7 +271,7 @@ if __name__ == "__main__":
     - Note bracket randomly created given set of 64 teams
     - Will update for 2022 NCAA Tournament
     """
-    testBracket = Bracket(64, predictions)
+    testBracket = Bracket(predictions, 64)
     # Note that game bracket has half-filled (all first round games)
     print(testBracket.gameBracket)
     # But winner braket is unfilled
