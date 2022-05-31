@@ -173,7 +173,8 @@ class Bracket():
         -Quarterfinal games start at index 4....
     -First round of games is "contained" in array entries 31 - 63
     """
-    def __init__(self, predictions, size = 64):
+    def __init__(self, predictions, teams = None, size = 64):
+        self.teams = teams
         self.size = size
         self.gameBracket = [None] * size
         self.winnerBracket = [None] * size

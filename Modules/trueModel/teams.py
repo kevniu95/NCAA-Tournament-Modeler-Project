@@ -85,7 +85,6 @@ class specificEntryImporter(bracketImporter):
     Subclass of bracketImporter built to import ESPN
     national web page (i.e., "People's Bracket")
     """
-
     def __init__(self, url = "https://fantasy.espn.com/tournament-challenge-bracket/2022/en/entry?entryID=53350427"):
         super().__init__()
         self.url = url
