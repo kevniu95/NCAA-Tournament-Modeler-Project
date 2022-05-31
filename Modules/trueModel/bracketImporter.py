@@ -24,29 +24,32 @@ class Teams():
         self.teams = self.bracketImporter.teams
         print(self.teams)
 
-    def setPredIds(self, file):
+    def setLookup(self, file):
         """
         Input:
-        -file: For now, a CSV file containing lookup between team names and Kaggle competition IDs
-            # Look to make more general in future if necessary
+        # Note: Look to make more general in future if necessary
+            -file: For now, a CSV file containing lookup between team names and Kaggle competition IDs
         Returns:
-        -Sets predId for each team in self.teams
+            -Dictionary with proper ID for each team in team List
         """
-        # probDictionary = {}
-        with open(self.file, 'r') as file:
+        teamDict = {}
+        with open(file, 'r') as file:
             for num, row in enumerate(file):
-                print(num, row)
-                # if num > 0:
-                #     team1 = row[5:9]
-                #     team2 = row[10:14]
-                #     prob = row[15:]
-                #     probDictionary[(team1, team2)] = float(prob)
-        # return probDictionary    
+                if len((row[row.rfind(',') + 1:])) > 1:
+                    name = row[row.rfind(',') + 1 :].strip()
+                    predId = row[:row.find(',')].strip()
+                    teamDict[name] = predId
+        self.teamDict = teamDict
 
-        # for team in self.teams:
+    def setPredIds(self, file):
+        # Set self.teamDict
+        self.setLookup(file)
 
-
-
+        # Then use that to assign predIds to each team in list
+        for team in self.teams:
+            team.predId = self.teamDict[team.name]
+            print(team.predId)
+        
 class Team():
     """
     Class representing NCAA Tournament Team
@@ -59,10 +62,10 @@ class Team():
         self.predId = None
     
     def __str__(self):
-        return f"Team {self.bracketId:>07b}; {self.name}; {self.region}; {self.seed}"
+        return f"Team {self.bracketId:>07b}; {self.name}; {self.region}; {self.seed}; {self.predId}"
 
     def __repr__(self):
-        return f"Team {self.bracketId:>07b}; {self.name}; {self.region}; {self.seed}"
+        return f"Team {self.bracketId:>07b}; {self.name}; {self.region}; {self.seed}; {self.predId}"
 
 class bracketImporter():
     """
@@ -162,6 +165,7 @@ if __name__ == "__main__":
 
     entryImporter = specificEntryImporter()
     teams = Teams(bracketImporter = entryImporter)
-    print(teams.teams)
-    
+    teams.setPredIds(file = 'MTeams.csv')
+    for team in teams.teams:
+        print(team)
     
