@@ -60,10 +60,10 @@ class Team():
         self.predId = None
     
     def __str__(self):
-        return f"{self.seed} {self.name}"
+        return f"{self.seed} {self.name} {self.predId}"
 
     def __repr__(self):
-        return f"{self.seed} {self.name}"
+        return f"{self.seed} {self.name} {self.predId}"
 
     def __eq__(self, other):
         return self.predId == other.predId

@@ -5,7 +5,9 @@ import numpy as np
 from abc import ABC, abstractmethod
 import random
 import math
+import csv
 from teams import Teams, specificEntryImporter
+from predTemplate import blankTemplate, simpleSeedTemplate
 
 '''
 2.19 TODO
@@ -88,7 +90,9 @@ class Game():
     
     def _getTeamOneWinPctWith(self, predictionsObject):
         predictions = self._getPredictions(predictionsObject)
-        return predictions[(self.team1, self.team2)]
+        id1 = self.team1.predId
+        id2 = self.team2.predId
+        return predictions[(id1, id2)]
 
     def simulateWith(self, predictionsObject):
         team1wins = self._getTeamOneWinPctWith(predictionsObject)
@@ -185,13 +189,11 @@ class Bracket():
     def assignFirstRound(self):
         # [print(team) for team in self.teams.teams]
         for num, i in enumerate(range(32, 64)):
-            print(num, i)
             bracketEntry = BracketEntry(i)
             team1 = self.teams.teams[2 * num]
             team2 = self.teams.teams[2 * num + 1]
             bracketEntry.addTeam(team1)
             bracketEntry.addTeam(team2)
-            print(bracketEntry)
             self.gameBracket[i] = bracketEntry
         # self.randomlyFillFirstRound()
         #TODO: Implement this and eventually replace randomlyFillFirstRound
@@ -267,7 +269,8 @@ class Bracket():
         self.gameBracket = [None] * self.size
         self.winnerBracket = [None] * self.size
         self.randomlyFillFirstRound()
-    
+
+
 if __name__ == "__main__":
 
     """
@@ -281,6 +284,17 @@ if __name__ == "__main__":
     entryImporter = specificEntryImporter()
     teams = Teams(bracketImporter = entryImporter)
     teams.setPredIds(file = 'MTeams.csv')
+    
+    """
+    Only need to do this the one time to set up
+    2022 predictions template
+    -And simple model by seed
+    """
+    temp1 = blankTemplate(2022, teams)
+    temp1.writeMatchups('predTemplate2022')
+
+    temp2 = simpleSeedTemplate(2022, teams)
+    temp2.writeMatchups('seedPreds2022')
 
     """
     B. Create Bracket
@@ -289,7 +303,7 @@ if __name__ == "__main__":
     """
     testBracket = Bracket(predictions, teams = teams, size = 64)
     # Note that game bracket has half-filled (all first round games)
-    print(testBracket.gameBracket)
+    # print(testBracket.gameBracket)
     # But winner braket is unfilled
     # print(testBracket.winnerBracket)
 
