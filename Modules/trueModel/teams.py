@@ -22,8 +22,7 @@ class Teams():
         
     def initiateTeams(self):
         self.teams = self.bracketImporter.teams
-        print(self.teams)
-
+        
     def setLookup(self, file):
         """
         Input:
@@ -48,7 +47,6 @@ class Teams():
         # Then use that to assign predIds to each team in list
         for team in self.teams:
             team.predId = self.teamDict[team.name]
-            print(team.predId)
         
 class Team():
     """
@@ -62,10 +60,28 @@ class Team():
         self.predId = None
     
     def __str__(self):
-        return f"Team {self.bracketId:>07b}; {self.name}; {self.region}; {self.seed}; {self.predId}"
+        return f"{self.seed} {self.name}"
 
     def __repr__(self):
-        return f"Team {self.bracketId:>07b}; {self.name}; {self.region}; {self.seed}; {self.predId}"
+        return f"{self.seed} {self.name}"
+
+    def __eq__(self, other):
+        return self.predId == other.predId
+    
+    def __geq__(self, other):
+        return self.predId >= other.predId
+    
+    def __leq__(self, other):
+        return self.predId <= other.predId
+    
+    def __gt__(self, other):
+        return self.predId > other.predId
+    
+    def __lt__(self, other):
+        return self.predId < other.predId
+    
+    def __ne__(self, other):
+        return self.predId != other.predId
 
 class bracketImporter():
     """
@@ -165,6 +181,6 @@ if __name__ == "__main__":
     entryImporter = specificEntryImporter()
     teams = Teams(bracketImporter = entryImporter)
     teams.setPredIds(file = 'MTeams.csv')
-    for team in teams.teams:
-        print(team)
+    # for team in teams.teams:
+        # print(team)
     

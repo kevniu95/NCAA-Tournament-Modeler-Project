@@ -5,6 +5,7 @@ import numpy as np
 from abc import ABC, abstractmethod
 import random
 import math
+from teams import Teams, specificEntryImporter
 
 '''
 2.19 TODO
@@ -178,11 +179,21 @@ class Bracket():
         self.size = size
         self.gameBracket = [None] * size
         self.winnerBracket = [None] * size
-        self.randomlyFillFirstRound()
         self.predictions = predictions
+        self.assignFirstRound()
     
-    def assignFirstRound(self, someBracketTemplate):
-        self.randomlyFillFirstRound()
+    def assignFirstRound(self):
+        # [print(team) for team in self.teams.teams]
+        for num, i in enumerate(range(32, 64)):
+            print(num, i)
+            bracketEntry = BracketEntry(i)
+            team1 = self.teams.teams[2 * num]
+            team2 = self.teams.teams[2 * num + 1]
+            bracketEntry.addTeam(team1)
+            bracketEntry.addTeam(team2)
+            print(bracketEntry)
+            self.gameBracket[i] = bracketEntry
+        # self.randomlyFillFirstRound()
         #TODO: Implement this and eventually replace randomlyFillFirstRound
 
     def randomlyFillFirstRound(self):
@@ -260,27 +271,31 @@ class Bracket():
 if __name__ == "__main__":
 
     """
-    A. Import predictions 
+    A. Import Predictions and Teams
     -Based on sample predictions for all 64*63 games in 2021 NCAA Tournament
     """
     predictions = Predictions()
-    for game, leftTeamWinProb in predictions.predictions.items():
-        print(f"Teams involved: {game}\nProbability left team wins: {leftTeamWinProb}\n")
+    # for game, leftTeamWinProb in predictions.predictions.items():
+        # print(f"Teams involved: {game}\nProbability left team wins: {leftTeamWinProb}\n")
     
+    entryImporter = specificEntryImporter()
+    teams = Teams(bracketImporter = entryImporter)
+    teams.setPredIds(file = 'MTeams.csv')
+
     """
     B. Create Bracket
     - Note bracket randomly created given set of 64 teams
     - Will update for 2022 NCAA Tournament
     """
-    testBracket = Bracket(predictions, 64)
+    testBracket = Bracket(predictions, teams = teams, size = 64)
     # Note that game bracket has half-filled (all first round games)
     print(testBracket.gameBracket)
     # But winner braket is unfilled
-    print(testBracket.winnerBracket)
+    # print(testBracket.winnerBracket)
 
     """
     C. Simulate Tournament
     """
-    testBracket.simulateTournament(reset = False)
-    print(testBracket.gameBracket)
-    print(testBracket.winnerBracket)
+    # testBracket.simulateTournament(reset = False)
+    # print(testBracket.gameBracket)
+    # print(testBracket.winnerBracket)
