@@ -3,10 +3,9 @@ import re
 from bs4 import BeautifulSoup
 from abc import ABC, abstractmethod
 
-
 class Teams():
     """
-    Class representing a lsit of NCAA Tournament Teams
+    Class representing a list of NCAA Tournament Teams
     """
     def __init__(self, teams = None, bracketImporter = None):
         """
@@ -25,6 +24,7 @@ class Teams():
         
     def setLookup(self, file):
         """
+        Creates lookup to use in setting up Prediction Ids (function below)
         Input:
         # Note: Look to make more general in future if necessary
             -file: For now, a CSV file containing lookup between team names and Kaggle competition IDs
@@ -41,6 +41,9 @@ class Teams():
         self.teamDict = teamDict
 
     def setPredIds(self, file):
+        """
+        Establishes lookup IDs for each team in Teams list
+        """
         # Set self.teamDict
         self.setLookup(file)
 

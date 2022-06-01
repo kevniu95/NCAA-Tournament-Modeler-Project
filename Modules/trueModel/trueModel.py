@@ -5,9 +5,9 @@ import numpy as np
 from abc import ABC, abstractmethod
 import random
 import math
-import csv
 from teams import Teams, specificEntryImporter
-from predTemplate import blankTemplate, simpleSeedTemplate
+from predictions import blankTemplate, simpleSeedTemplate, Predictions, \
+    KagglePredictionsGenerator
 
 '''
 2.19 TODO
@@ -16,61 +16,6 @@ from predTemplate import blankTemplate, simpleSeedTemplate
 2. Update with actual bracket when available
     -Instead of randomly filling first round in Bracket class
 '''
-
-class PredictionsGenerator():
-    """
-    << Predictions Generator >>
-    """
-    def __init__(self, fileName):
-        self.file = fileName
-        self.probabilities = self.generateProbabilities()
-        
-    @abstractmethod
-    def generateProbabilities(self):
-        pass
-
-class KagglePredictionsGenerator(PredictionsGenerator):
-    """
-    Concrete subclass for <<PredictionsGenerator>>
-    KNOW: Any Kaggle Input Data
-    DO: Produce dictionary to be passed to be GamePredictions class
-            {key              :   value}
-        Ex. {(teamid, teamid) :   0.5}
-    """
-    def __init__(self, fileName):
-        super().__init__(fileName)
-        
-    def generateProbabilities(self):
-        probDictionary = {}
-        with open(self.file, 'r') as file:
-            for num, row in enumerate(file):
-                if num > 0:
-                    team1 = row[5:9]
-                    team2 = row[10:14]
-                    prob = row[15:]
-                    probDictionary[(team1, team2)] = float(prob)
-        return probDictionary    
-
-class Predictions():
-    """
-    Class that encapsulates choosing a concrete set of predictions
-    (Separated from KagglePredictionsGenerator in case predictions come in another form)
-    """
-    def __init__(self, generator = KagglePredictionsGenerator('testPredictions2021.csv')):
-        self.generator = generator
-        self._predictions = self.initializePredictions()
-    
-    def initializePredictions(self):
-        return self.generator.probabilities
-
-    @property
-    def predictions(self):
-        return self._predictions
-    
-    @predictions.setter
-    def predictions(self, value):
-        print("Sorry, can't reset the predictions!")
-        return
     
 class Game():
     """
@@ -217,13 +162,17 @@ class Bracket():
     def round(self):
         """
         Maintains state indicating which round is currently being processed
+        -Gets first non-null value at start of each round, which is last-processed round
+            -Which basically gives number of games yet to be processed
+            -64 / Games-to-Be-processed incerases linearly with each round so can use
+                -To get the round number
         """
         ctr = 0
         for num, i in enumerate(self.gameBracket):
             if i is not None:
                 return math.log(self.size // ctr, 2)
             ctr += 1
-    
+        
     @round.setter
     def round(self, value):
         print("Round is an internally-determined property and cannot be reset!")
