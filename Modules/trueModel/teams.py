@@ -13,12 +13,30 @@ class Teams():
         """
         self.teams = teams # List of teams
         self.bracketImporter = bracketImporter
+        self._predIdDict = None
+        self._nameTeamDict = None
         if self.teams is None:
             self.initiateTeams()
         elif self.bracketImporter is None:
             print("Please provide either a list of Team objects or a bracketImporter"\
                 "that can be used to initialize a list of Team objects")
-        
+    
+    @property 
+    def nameTeamDict(self):
+        """
+        Creates Dictionary between team name and actual Team entry
+        """
+        if self._nameTeamDict is None:
+            self._nameTeamDict = {}
+            for team in self.teams:
+                self._nameTeamDict[team.name]  = team
+        return self._nameTeamDict
+
+    @nameTeamDict.setter
+    def round(self, value):
+        print("nameTeamDict is an internally-determined property and cannot be reset!")
+        return
+
     def initiateTeams(self):
         self.teams = self.bracketImporter.teams
         
@@ -31,14 +49,14 @@ class Teams():
         Returns:
             -Dictionary with proper ID for each team in team List
         """
-        teamDict = {}
+        predIdDict = {}
         with open(file, 'r') as file:
             for num, row in enumerate(file):
                 if len((row[row.rfind(',') + 1:])) > 1:
                     name = row[row.rfind(',') + 1 :].strip()
                     predId = row[:row.find(',')].strip()
-                    teamDict[name] = predId
-        self.teamDict = teamDict
+                    predIdDict[name] = predId
+        self._predIdDict = predIdDict
 
     def setPredIds(self, file):
         """
@@ -49,7 +67,20 @@ class Teams():
 
         # Then use that to assign predIds to each team in list
         for team in self.teams:
-            team.predId = self.teamDict[team.name]
+            team.predId = self._predIdDict[team.name]
+    
+    @property
+    def predIdDict(self):
+        if self._predIdDict is None:
+            print("Run the function setPredIds to initialize the prediciton ID dictionary!")
+        else:
+            return self._predIdDict
+    
+    @predIdDict.setter
+    def round(self, value):
+        print("predIdDict is an internally-determined property and cannot be reset!")
+        return
+
         
 class Team():
     """
@@ -61,6 +92,10 @@ class Team():
         self.seed = seed
         self.region = region
         self.predId = None
+        self.pickPct = dict(zip(range(5), [None] * 5))
+    
+    def setPick(self, round, pct):
+        self.pickPct[round] = pct
     
     def __str__(self):
         return f"{self.seed} {self.name} {self.predId}"

@@ -1,6 +1,9 @@
 import csv
 from abc import ABC, abstractmethod
 
+"""
+Classes to use predictions
+"""
 class PredictionsGenerator():
     """
     << Predictions Generator >>
@@ -56,6 +59,10 @@ class Predictions():
         print("Sorry, can't reset the predictions!")
         return
 
+
+"""
+Classes to build predictions
+"""
 class predictionTemplate():
     """
     "Abstract" template class
