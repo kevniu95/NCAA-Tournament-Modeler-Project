@@ -95,7 +95,12 @@ class Team():
         self.pickPct = dict(zip(range(5), [None] * 5))
     
     def setPick(self, round, pct):
-        self.pickPct[round] = pct
+        if isinstance(pct, str) and '.' in pct and '%' in pct:
+            self.pickPct[round] =  float(pct.strip('%'))/100
+        elif isinstance(pct, str):
+            print("Unable to set pick percentage for this team - unworkable string format")
+        else:
+            self.pickPct[round] = pct
     
     def __str__(self):
         return f"{self.seed} {self.name} {self.predId}"

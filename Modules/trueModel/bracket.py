@@ -118,7 +118,7 @@ class Bracket():
     def __init__(self, inputObject, teams = None, size = 64):
         self.teams = teams
         self.size = size
-        self.gameBracket = [None] * size
+        self.gameBracket = [None] * size # Ordered list of bracketEntries
         self.winnerBracket = [None] * size
         self.inputObject = inputObject
         self.assignFirstRound()

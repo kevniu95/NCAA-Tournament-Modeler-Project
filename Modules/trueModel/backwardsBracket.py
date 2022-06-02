@@ -8,17 +8,20 @@ from predictions import blankTemplate, simpleSeedTemplate, Predictions, \
     KagglePredictionsGenerator
 
 class backwardBracketEntry(BracketEntry):
-    def __init__(self, index, teamList):
+    def __init__(self, index, teamList, rd):
         super().__init__(index)
         self.teamList = teamList
+        self.rd = rd
     
     def getWinner(self):
         currVal = 0
         i = 0
-        self.teamList.sort(key = lambda x : -x[2])
+        self.teamList.sort(key = lambda x : x.pickPct[self.rd], reverse= True)
         val = np.random.uniform(0, 1)
-        while currVal > val:
-            currVal += self.teamList[i]
+        while val > currVal:
+            print(val)
+            print(self.teamList[i].pickPct[self.rd])
+            currVal += self.teamList[i].pickPct[self.rd]
             i += 1
         return self.teamList[i - 1]
 
@@ -57,7 +60,8 @@ class backwardBracket(Bracket):
         teams = self.teams.teams
         
         # Loop through each round
-        for i in range(int(np.log2(self.size)) -1 , -1, -1):
+        #int(np.log2(self.size)) -1
+        for i in range(0 , -1, -1):
             gamesInRound = 2 ** (5 - i)
             roundStartIdx = 2 ** (5 - i)
             teamsInGame = int(self.size / gamesInRound)
@@ -69,7 +73,12 @@ class backwardBracket(Bracket):
                 ctr += teamsInGame
                 # Create a backwards Bracket Entry if there isn't one already
                 if self.winnerBracket[gameIdx] is None:
-                    self.winnerBracket[gameIdx] = backwardBracketEntry(gameIdx, teamList)
+                    thisEntry = backwardBracketEntry(gameIdx, teamList, i)
+                    winner = thisEntry.getWinner()
+                    self.winnerBracket[gameIdx] = winner
+        print(self.winnerBracket)
+                    
+                    # Back
                 
                     
         
