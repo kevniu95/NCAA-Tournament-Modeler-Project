@@ -4,8 +4,6 @@ import numpy as np
 from bs4 import BeautifulSoup
 from bracket import Bracket, BracketEntry
 from teams import Teams, specificEntryImporter
-from predictions import blankTemplate, simpleSeedTemplate, Predictions, \
-    KagglePredictionsGenerator
 
 class backwardBracketEntry(BracketEntry):
     def __init__(self, index, teamList, rd):
@@ -19,33 +17,27 @@ class backwardBracketEntry(BracketEntry):
         self.teamList.sort(key = lambda x : x.pickPct[self.rd], reverse= True)
         val = np.random.uniform(0, 1)
         while val > currVal:
-            print(val)
-            print(self.teamList[i].pickPct[self.rd])
             currVal += self.teamList[i].pickPct[self.rd]
             i += 1
-        return self.teamList[i - 1]
+        self.winner = self.teamList[i - 1]
+        return self.winner
 
 class backwardBracket(Bracket):
-    def __init__(self, inputObject, teams = None, size = 64, bwUrl = None):
-        """
-        bwUrl is the url link to where the ESPN Who Picked Whom information is located
-        """
+    def __init__(self, teams = None, size = 64, bwUrl = None):
+        super().__init__(size = size)
+        self.teams = teams
+        # bwUrl is the url link to where the ESPN Who Picked Whom information is located
         if bwUrl is None:
             self.url = "https://fantasy.espn.com/tournament-challenge-bracket/2022/en/whopickedwhom"
         else:
             self.url = bwUrl
 
-        super().__init__(inputObject = inputObject, teams = teams, size = 64)
-    
     def getPickInfo(self):
         page = requests.get(self.url)
         soup = BeautifulSoup(page.content, 'html.parser')
 
-        roundDict = {}
-        
         for i in range(6):
             # Pull Round Data in
-            roundList = []
             teams = soup.find_all('td', class_= re.compile('_round' + str(i) +'$'))
             for team in teams:
                 # Save this tuple in a list (BracketID, teamName, teamPct)
@@ -54,14 +46,13 @@ class backwardBracket(Bracket):
                 teamObject = self.teams.nameTeamDict[teamName]
                 teamObject.setPick(round = i, pct = teamPct)
     
-    def simulateRounds(self):
+    def getWinnerBracket(self):
         # Sort teams (of object Teams) by bracket ID
         self.teams.teams.sort(key = lambda x: x.bracketId)
         teams = self.teams.teams
         
         # Loop through each round
-        #int(np.log2(self.size)) -1
-        for i in range(0 , -1, -1):
+        for i in range(int(np.log2(self.size)) -1, -1, -1):
             gamesInRound = 2 ** (5 - i)
             roundStartIdx = 2 ** (5 - i)
             teamsInGame = int(self.size / gamesInRound)
@@ -76,39 +67,20 @@ class backwardBracket(Bracket):
                     thisEntry = backwardBracketEntry(gameIdx, teamList, i)
                     winner = thisEntry.getWinner()
                     self.winnerBracket[gameIdx] = winner
-        print(self.winnerBracket)
-                    
-                    # Back
-                
-                    
+
+                    winnerBracketIdx = winner.bracketId + 64
+                    while winnerBracketIdx > gameIdx:
+                        winnerBracketIdx = winnerBracketIdx // 2
+                        self.winnerBracket[winnerBracketIdx] = winner
+        return self.winnerBracket
+
         
-
-
 if __name__ == '__main__':
-
-    generator = KagglePredictionsGenerator('seedPreds2022.csv')
-    predictions = Predictions(generator)
-    # predictions = Predictions()
-    # for game, leftTeamWinProb in predictions.predictions.items():
-        # print(f"Teams involved: {game}\nProbability left team wins: {leftTeamWinProb}\n")
-    
     entryImporter = specificEntryImporter()
     teams = Teams(bracketImporter = entryImporter)
     teams.setPredIds(file = 'MTeams.csv')
     
-    test = backwardBracket(inputObject = predictions, teams = teams, size = 64, bwUrl = None)
+    test = backwardBracket(teams = teams, size = 64, bwUrl = None)
     test.getPickInfo()
-    test.simulateRounds()
-    # testBracket = Bracket(predictions, teams = teams, size = 64)
-    # Note that game bracket has half-filled (all first round games)
-    # print(testBracket.gameBracket)
-    # But winner braket is unfilled
-    # print(testBracket.winnerBracket)
-
-    """
-    C. Simulate Tournament
-    """
-    # testBracket.simulateTournament(reset = False)
-    # print(testBracket.gameBracket)
-    # print(testBracket.winnerBracket)
-    # print(len(testBracket.winnerBracket))
+    print(test.getWinnerBracket())
+    

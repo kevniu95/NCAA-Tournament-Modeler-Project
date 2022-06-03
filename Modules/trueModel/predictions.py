@@ -134,7 +134,17 @@ class simpleSeedTemplate(predictionTemplate):
         return prob 
 
 def main():
-    pass
+    """
+    Only need to do this the one time to set up
+    2022 predictions template
+    -And simple model by seed
+    """
+    # temp1 = blankTemplate(2022, teams)
+    # temp1.writeMatchups('predTemplate2022')
+
+    # temp2 = simpleSeedTemplate(2022, teams)
+    # temp2.writeMatchups('seedPreds2022')
+
 
 if __name__ == '__main__':
     main()
