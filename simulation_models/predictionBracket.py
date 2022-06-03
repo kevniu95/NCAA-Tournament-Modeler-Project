@@ -175,17 +175,17 @@ class predictionBracket(Bracket):
         if self.gameBracket[index] is None:
             self.gameBracket[index] = predictionBracketEntry(index)
     
-    def getWinnerBracket(self, reset = True):
+    def getWinnerBracket(self):
         while self.winnerBracket[1] is None:
             self._simulateRound()
-        if reset:
-            self.bracketReset()
+        # if reset:
+        #     self.bracketReset()
         return self.winnerBracket
     
-    def bracketReset(self):
-        self.gameBracket = [None] * self.size
-        self.winnerBracket = [None] * self.size
-        self.randomlyFillFirstRound()
+    # def bracketReset(self):
+    #     self.gameBracket = [None] * self.size
+    #     self.winnerBracket = [None] * self.size
+    #     # self.randomlyFillFirstRound()
 
 if __name__ == "__main__":
     # A. Import Predictions

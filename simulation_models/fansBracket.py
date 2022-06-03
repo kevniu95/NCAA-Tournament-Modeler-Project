@@ -25,7 +25,7 @@ class backwardBracketEntry(BracketEntry):
         self.winner = self.teamList[i - 1]
         return self.winner
 
-class backwardBracket(Bracket):
+class fansBracket(Bracket):
     def __init__(self, teams = None, size = 64, bwUrl = None):
         super().__init__(size = size)
         self.teams = teams
@@ -34,8 +34,9 @@ class backwardBracket(Bracket):
             self.url = "https://fantasy.espn.com/tournament-challenge-bracket/2022/en/whopickedwhom"
         else:
             self.url = bwUrl
+        self._getPickInfo()
 
-    def getPickInfo(self):
+    def _getPickInfo(self):
         page = requests.get(self.url)
         soup = BeautifulSoup(page.content, 'html.parser')
 
@@ -83,7 +84,7 @@ if __name__ == '__main__':
     teams = Teams(teamImporter = entryImporter)
     teams.setPredIds(file = '../Data/MTeams.csv')
     
-    test = backwardBracket(teams = teams, size = 64, bwUrl = None)
-    test.getPickInfo()
+    test = fansBracket(teams = teams, size = 64, bwUrl = None)
+    test._getPickInfo()
     print(test.getWinnerBracket())
     
