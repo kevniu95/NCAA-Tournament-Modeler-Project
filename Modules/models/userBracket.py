@@ -1,3 +1,6 @@
+import sys
+sys.path.insert(0, '../data_structures/')
+
 import requests
 import re
 from bs4 import BeautifulSoup
@@ -9,8 +12,8 @@ class userBracket(Bracket):
         """
         bwUrl is the url link to where the ESPN Who Picked Whom information is located
         """
-        super().__init__(teams = teams, size = size)
-        
+        super().__init__(size = size)
+        self.teams = teams
         # userUrl is the url link to where the specific ESPN bracket entry is located
         if userUrl is None:
             self.url = "https://fantasy.espn.com/tournament-challenge-bracket/2022/en/entry?entryID=53350427"
@@ -27,12 +30,17 @@ class userBracket(Bracket):
         # A. Get everyone except for winner of Championship game
         for entry in nonChampWinners:
             spans = entry.find_all('span')
-            winners.append(spans[7].text)
+            teamName = spans[7].text
+            winner = self.teams.nameTeamDict[teamName]
+            winners.append(winner)
+        
         # B. Get winner of Championship game
         champ = soup.find_all('div', class_ = re.compile('center'))[0]
         winnerName = champ.find_all('span', class_ = 'name')[1].text
-        winners.append(winnerName)
+        winner = self.teams.nameTeamDict[winnerName]
+        winners.append(winner)
         self._assignWinners(winners)
+        return self.winnerBracket
 
     def _assignWinners(self, winners):
         self.winnerBracket[32:] = winners[:32]
@@ -44,12 +52,13 @@ class userBracket(Bracket):
 
 def main():
     entryImporter = specificEntryImporter()
-    teams = Teams(bracketImporter = entryImporter)
-    teams.setPredIds(file = 'MTeams.csv')
+    teams = Teams(teamImporter = entryImporter)
+    teams.setPredIds(file = '../data/MTeams.csv')
     
     kevUrl = "https://fantasy.espn.com/tournament-challenge-bracket/2022/en/entry?entryID=53350427"
     test = userBracket(teams = teams, size = 64, userUrl = kevUrl)
-    test.getWinnerBracket()
+    print(test.getWinnerBracket())
+
     
 if __name__ == '__main__':
     main()

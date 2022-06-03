@@ -1,4 +1,5 @@
-# True Model
+import sys
+sys.path.insert(0, '../data_structures/')
 
 import numpy as np
 import random
@@ -188,14 +189,14 @@ class predictionBracket(Bracket):
 
 if __name__ == "__main__":
     # A. Import Predictions
-    generator = KagglePredictionsGenerator('seedPreds2022.csv')
+    generator = KagglePredictionsGenerator('../data/kaggle_predictions/seedPreds2022.csv')
     predictions = Predictions(generator)
     # print(predictions.predictions)
     
     # B. Import Teams
     entryImporter = specificEntryImporter()
-    teams = Teams(bracketImporter = entryImporter)
-    teams.setPredIds(file = 'MTeams.csv')
+    teams = Teams(teamImporter = entryImporter)
+    teams.setPredIds(file = '../Data/MTeams.csv')
     # print(teams.teams)
     
     # C. Create Bracket

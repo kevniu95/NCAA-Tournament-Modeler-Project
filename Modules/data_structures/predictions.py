@@ -43,12 +43,9 @@ class Predictions():
     Class that encapsulates choosing a concrete set of predictions
     (Separated from KagglePredictionsGenerator in case predictions come in another form)
     """
-    def __init__(self, generator = KagglePredictionsGenerator('testPredictions2021.csv')):
+    def __init__(self, generator = KagglePredictionsGenerator('../data/kaggle_predictions/testPredictions2021.csv')):
         self.generator = generator
-        self._predictions = self.initializePredictions()
-    
-    def initializePredictions(self):
-        return self.generator.probabilities
+        self._predictions = self.generator.probabilities
 
     @property
     def predictions(self):
@@ -58,7 +55,6 @@ class Predictions():
     def predictions(self, value):
         print("Sorry, can't reset the predictions!")
         return
-
 
 """
 Classes to build predictions

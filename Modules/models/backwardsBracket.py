@@ -1,3 +1,6 @@
+import sys
+sys.path.insert(0, '../data_structures/')
+
 import requests
 import re
 import numpy as np
@@ -77,8 +80,8 @@ class backwardBracket(Bracket):
         
 if __name__ == '__main__':
     entryImporter = specificEntryImporter()
-    teams = Teams(bracketImporter = entryImporter)
-    teams.setPredIds(file = 'MTeams.csv')
+    teams = Teams(teamImporter = entryImporter)
+    teams.setPredIds(file = '../Data/MTeams.csv')
     
     test = backwardBracket(teams = teams, size = 64, bwUrl = None)
     test.getPickInfo()

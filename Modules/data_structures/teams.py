@@ -7,20 +7,26 @@ class Teams():
     """
     Class representing a list of NCAA Tournament Teams
     """
-    def __init__(self, teams = None, bracketImporter = None):
+    def __init__(self, teams = None, teamImporter = None):
         """
-        Specify either a list of individual Team(s) or use bracketImporter to initialize
+        Specify either a list of individual Team(s) or use teamImporter to initialize
         """
+        # Public attrs
         self.teams = teams # List of teams
-        self.bracketImporter = bracketImporter
+        self.teamImporter = teamImporter
+        # Private attrs
         self._predIdDict = None
         self._nameTeamDict = None
+        # Initialization f(x)
         if self.teams is None:
             self.initiateTeams()
-        elif self.bracketImporter is None:
-            print("Please provide either a list of Team objects or a bracketImporter"\
+        elif self.teamImporter is None:
+            print("Please provide either a list of Team objects or a teamImporter"\
                 "that can be used to initialize a list of Team objects")
     
+    def initiateTeams(self):
+        self.teams = self.teamImporter.teams
+
     @property 
     def nameTeamDict(self):
         """
@@ -36,16 +42,25 @@ class Teams():
     def round(self, value):
         print("nameTeamDict is an internally-determined property and cannot be reset!")
         return
+    
+    def setPredIds(self, file):
+        """
+        Establishes prediction - lookup IDs for each team in Teams list
+        """
+        # Set self.teamDict
+        self._setPredLookup(file)
 
-    def initiateTeams(self):
-        self.teams = self.bracketImporter.teams
-        
-    def setLookup(self, file):
+        # Then use that to assign predIds to each team in list
+        for team in self.teams:
+            team.predId = self._predIdDict[team.name]
+
+    def _setPredLookup(self, file):
         """
         Creates lookup to use in setting up Prediction Ids (function below)
         Input:
-        # Note: Look to make more general in future if necessary
+        # NOTE: Look to make more general in future if necessary
             -file: For now, a CSV file containing lookup between team names and Kaggle competition IDs
+            - i.e., this version is specific to input used in Kaggle competition
         Returns:
             -Dictionary with proper ID for each team in team List
         """
@@ -57,30 +72,6 @@ class Teams():
                     predId = row[:row.find(',')].strip()
                     predIdDict[name] = predId
         self._predIdDict = predIdDict
-
-    def setPredIds(self, file):
-        """
-        Establishes lookup IDs for each team in Teams list
-        """
-        # Set self.teamDict
-        self.setLookup(file)
-
-        # Then use that to assign predIds to each team in list
-        for team in self.teams:
-            team.predId = self._predIdDict[team.name]
-    
-    @property
-    def predIdDict(self):
-        if self._predIdDict is None:
-            print("Run the function setPredIds to initialize the prediciton ID dictionary!")
-        else:
-            return self._predIdDict
-    
-    @predIdDict.setter
-    def round(self, value):
-        print("predIdDict is an internally-determined property and cannot be reset!")
-        return
-
         
 class Team():
     """
@@ -91,7 +82,7 @@ class Team():
         self.name = name
         self.seed = seed
         self.region = region
-        self.predId = None
+        self.predId = None # Initialized in Teams class
         self.pickPct = dict(zip(range(5), [None] * 5))
     
     def setPick(self, round, pct):
@@ -126,9 +117,9 @@ class Team():
     def __ne__(self, other):
         return self.predId != other.predId
 
-class bracketImporter():
+class teamImporter():
     """
-    Abstract bracketImporter class 
+    Abstract teamImporter class 
     
     Initializes list of individual Team(s) to be used in Teams class
     """
@@ -139,9 +130,9 @@ class bracketImporter():
     def initiateTeams(self):
         pass
 
-class specificEntryImporter(bracketImporter):
+class specificEntryImporter(teamImporter):
     """
-    Subclass of bracketImporter built to import ESPN
+    Subclass of teamImporter built to import ESPN
     national web page (i.e., "People's Bracket")
     """
     def __init__(self, url = "https://fantasy.espn.com/tournament-challenge-bracket/2022/en/entry?entryID=53350427"):
@@ -150,11 +141,11 @@ class specificEntryImporter(bracketImporter):
         self.initiateTeams()
     
     def initiateTeams(self):
-        teamCtr = 0
         page = requests.get(self.url)
         soup = BeautifulSoup(page.content, 'html.parser')
-
         slots = soup.find_all('div', class_= re.compile('slot s_[0-9]*$'))
+        
+        teamCtr = 0 #Forms bracketID for each individual team
         for slot in slots:
             # Get Seed
             seed_tag = slot.find_all('span', class_ = 'seed')
@@ -166,9 +157,9 @@ class specificEntryImporter(bracketImporter):
             self.teams[teamCtr] = Team(teamCtr, name, None, seed)
             teamCtr += 1
 
-class bracketImporterBracketologyESPN(bracketImporter):
+class teamImporterBracketologyESPN(teamImporter):
     """
-    Subclass of bracketImporter built to import ESPN
+    Subclass of teamImporter built to import ESPN
     bracketology web page
     """
     def __init__(self, bracketologyURL = "http://www.espn.com/mens-college-basketball/bracketology"):
@@ -217,13 +208,13 @@ class bracketImporterBracketologyESPN(bracketImporter):
 
 
 if __name__ == "__main__":
-    # testImport = bracketImporterBracketologyESPN()
+    # testImport = teamImporterBracketologyESPN()
     # for teamEntry in testImport.teams:
     #     print(teamEntry)
 
     entryImporter = specificEntryImporter()
-    teams = Teams(bracketImporter = entryImporter)
-    teams.setPredIds(file = 'MTeams.csv')
+    teams = Teams(teamImporter = entryImporter)
+    teams.setPredIds(file = '../data/MTeams.csv')
     # for team in teams.teams:
         # print(team)
     
