@@ -13,15 +13,26 @@ class backwardBracketEntry(BracketEntry):
         super().__init__(index)
         self.teamList = teamList
         self.rd = rd
+        self.sorted = None
     
     def getWinner(self):
         currVal = 0
         i = 0
-        self.teamList.sort(key = lambda x : x.pickPct[self.rd], reverse= True)
+        if self.sorted is None or self.sorted == False:
+            self.teamList.sort(key = lambda x : x.pickPct[self.rd], reverse= True)
+            self.sorted = True
         val = np.random.uniform(0, 1)
+        retries = 0
         while val > currVal:
-            currVal += self.teamList[i].pickPct[self.rd]
+            try:
+                currVal += self.teamList[i].pickPct[self.rd]
+            except:
+                val = np.random.uniform(0, 1) 
+                i = 0
+                retries += 1
             i += 1
+        if retries > 0:
+            print(f"A bracket entry saw {retries} retries")
         self.winner = self.teamList[i - 1]
         return self.winner
 
@@ -44,7 +55,7 @@ class fansBracket(Bracket):
             # Pull Round Data in
             teams = soup.find_all('td', class_= re.compile('_round' + str(i) +'$'))
             for team in teams:
-                # Save this tuple in a list (BracketID, teamName, teamPct)
+                # Save this to Team information in Teams list
                 teamName = team.find_all('span', class_ = 'teamName')[0].text
                 teamPct = team.find_all('span', class_ = 'percentage')[0].text
                 teamObject = self.teams.nameTeamDict[teamName]
@@ -55,6 +66,7 @@ class fansBracket(Bracket):
         self.teams.teams.sort(key = lambda x: x.bracketId)
         teams = self.teams.teams
         
+        winnerBracket = [None] * self.size
         # Loop through each round
         for i in range(int(np.log2(self.size)) -1, -1, -1):
             gamesInRound = 2 ** (5 - i)
@@ -67,16 +79,16 @@ class fansBracket(Bracket):
                 # Move to next set of teams for next game
                 ctr += teamsInGame
                 # Create a backwards Bracket Entry if there isn't one already
-                if self.winnerBracket[gameIdx] is None:
+                if winnerBracket[gameIdx] is None:
                     thisEntry = backwardBracketEntry(gameIdx, teamList, i)
                     winner = thisEntry.getWinner()
-                    self.winnerBracket[gameIdx] = winner
+                    winnerBracket[gameIdx] = winner
 
                     winnerBracketIdx = winner.bracketId + 64
                     while winnerBracketIdx > gameIdx:
                         winnerBracketIdx = winnerBracketIdx // 2
-                        self.winnerBracket[winnerBracketIdx] = winner
-        return self.winnerBracket
+                        winnerBracket[winnerBracketIdx] = winner
+        return winnerBracket
 
         
 if __name__ == '__main__':
@@ -84,7 +96,8 @@ if __name__ == '__main__':
     teams = Teams(teamImporter = entryImporter)
     teams.setPredIds(file = '../Data/MTeams.csv')
     
-    test = fansBracket(teams = teams, size = 64, bwUrl = None)
-    test._getPickInfo()
-    print(test.getWinnerBracket())
+    for i in range(1000):
+        test = fansBracket(teams = teams, size = 64, bwUrl = None)
+        test._getPickInfo()
+        test.getWinnerBracket()
     

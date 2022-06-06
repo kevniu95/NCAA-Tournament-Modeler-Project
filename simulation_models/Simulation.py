@@ -10,6 +10,7 @@ from bs4 import BeautifulSoup
 from predictionBracket import predictionBracket
 from fansBracket import fansBracket
 from userBracket import userBracket
+import time
 
 from teams import Teams, specificEntryImporter
 from predictions import Predictions, KagglePredictionsGenerator
@@ -22,12 +23,14 @@ config.read(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'driver_con
 
 
 class Simulation():
-    def __init__(self, bracketTeams = None, predBracket = None, fanBracket = None, myBracket = None, bracketSize = 64):
+    def __init__(self, bracketTeams = None, predBracket = None, fanBracket = None, myBracket = None, bracketSize = 64,
+                    poolSize = 1000):
         self.teams = self.initTeams(bracketTeams)
         self.predBracket = self.initPred(predBracket)
         self.fanBracket = self.initFan(fanBracket)
         self.myBracket = self.initUser(myBracket)
         self.size = bracketSize
+        self.poolSize = poolSize
     
     def initTeams(self, teams):
         if teams is None:
@@ -55,12 +58,27 @@ class Simulation():
             userUrl = "https://fantasy.espn.com/tournament-challenge-bracket/2022/en/entry?entryID=53350427"
             myBracket = userBracket(teams = self.teams, size = 64, userUrl = userUrl)
         return myBracket
+    
+    def simulate(self):
+        start = time.time()
+        simulatedPool = [None] * self.poolSize
+        for i in range (self.poolSize):
+            simulatedPool[i] = self.fanBracket.getWinnerBracket()
+        end = time.time()
+        # print(end - start)
+        return simulatedPool
+        
+
 
 # def main():
 #     a = Simulation()
     
 if __name__ == "__main__":
     a = Simulation()
+    test = a.simulate()
+    print(test[0])
+    print(test[1])
+
     # print(a.fanBracket.getWinnerBracket())
-    print(a.predBracket.getWinnerBracket())
+    # print(a.predBracket.getWinnerBracket())
     # print(a.myBracket.getWinnerBracket())

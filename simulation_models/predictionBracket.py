@@ -45,6 +45,13 @@ class Game():
         return f"{self.team1} vs. {self.team2}"
         
 class predictionBracketEntry(BracketEntry):
+    # TODO: Update so that assign first round is happening once 
+    # per instance of this class
+    # -And each call of getWinnerBracket() returns a new instance of 
+    #   winner list
+    # -Therefore self.round and self.winnerbracket aren't needed 
+    #   anymore
+    # 
     def __init__(self, index):
         super().__init__(index)
         self.team1 = None
@@ -93,12 +100,9 @@ class predictionBracket(Bracket):
         # Assign first round
         self.assignFirstRound()
     
-    def assignFirstRound(self, random = False):
-        if random or self.teams is None:
-            self.randomlyFillFirstRound()
-        else:
-            self.assignByTeamList()
-    
+    def assignFirstRound(self):
+        self.assignByTeamList()
+        
     def assignByTeamList(self):
         for num, i in enumerate(range(32, 64)):
             bracketEntry = predictionBracketEntry(i)
@@ -108,23 +112,6 @@ class predictionBracket(Bracket):
             bracketEntry.addTeam(team2)
             self.gameBracket[i] = bracketEntry
     
-    def randomlyFillFirstRound(self):
-        '''
-        Randomly fills first round based on distinct teams available in
-        the Predictions dataset
-        '''
-        preds = self.inputObject.predictions
-        listOfTeams = list(set([i[0] for i in preds.keys()]))[:64]
-        random.shuffle(listOfTeams)
-        for num, i in enumerate(range(32, 64)):
-            idx = i - 32
-            teamA = listOfTeams[2 * idx]
-            teamB = listOfTeams[2 * idx + 1]
-            bracketEntry = predictionBracketEntry(i)
-            bracketEntry.addTeam(teamA)
-            bracketEntry.addTeam(teamB)
-            self.gameBracket[i] = bracketEntry
-
     @property
     def round(self):
         """
@@ -170,22 +157,23 @@ class predictionBracket(Bracket):
                 self._insertBracketEntry(bracketEntryNextIndex)
                 nextEntry = self.gameBracket[bracketEntryNextIndex]
                 nextEntry.addTeam(bracketEntryWinner)
+        return self.winnerBracket
     
     def _insertBracketEntry(self, index):
         if self.gameBracket[index] is None:
             self.gameBracket[index] = predictionBracketEntry(index)
     
-    def getWinnerBracket(self):
+    def getWinnerBracket(self, reset = True):
         while self.winnerBracket[1] is None:
-            self._simulateRound()
-        # if reset:
-        #     self.bracketReset()
-        return self.winnerBracket
+            winnerBracket = self._simulateRound()
+        if reset:
+            self.bracketReset()
+        return winnerBracket
     
-    # def bracketReset(self):
-    #     self.gameBracket = [None] * self.size
-    #     self.winnerBracket = [None] * self.size
-    #     # self.randomlyFillFirstRound()
+    def bracketReset(self):
+        self.gameBracket = [None] * self.size
+        self.winnerBracket = [None] * self.size
+        self.assignFirstRound()
 
 if __name__ == "__main__":
     # A. Import Predictions
