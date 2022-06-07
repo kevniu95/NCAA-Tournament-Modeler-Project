@@ -163,7 +163,7 @@ class predictionBracket(Bracket):
         if self.gameBracket[index] is None:
             self.gameBracket[index] = predictionBracketEntry(index)
     
-    def getWinnerBracket(self, reset = True):
+    def getWinnerBracket(self, reset = False):
         while self.winnerBracket[1] is None:
             winnerBracket = self._simulateRound()
         if reset:

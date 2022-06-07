@@ -22,6 +22,7 @@ config = ConfigParser(os.environ)
 config.read(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'driver_config.ini'))
 
 
+
 class Simulation():
     def __init__(self, bracketTeams = None, predBracket = None, fanBracket = None, myBracket = None, bracketSize = 64,
                     poolSize = 1000):
@@ -29,8 +30,13 @@ class Simulation():
         self.predBracket = self.initPred(predBracket)
         self.fanBracket = self.initFan(fanBracket)
         self.myBracket = self.initUser(myBracket)
+        
         self.size = bracketSize
         self.poolSize = poolSize
+
+        self.fanPool = None
+        self.myScore = None
+        self.myRights = None
     
     def initTeams(self, teams):
         if teams is None:
@@ -59,14 +65,61 @@ class Simulation():
             myBracket = userBracket(teams = self.teams, size = 64, userUrl = userUrl)
         return myBracket
     
-    def simulate(self):
-        start = time.time()
+    def runSimulation(self):
+        self.myBracket.getWinnerBracket()
+        self.predBracket.getWinnerBracket()
+        self._simulatePool()
+        # print(self.fanPool)
+        
+    def _simulatePool(self):
+        """
+        Creates realistic pool of "fan" competitors as simulated 
+        from ESPN Who Picked Whom (see fansBracket module)
+        """
         simulatedPool = [None] * self.poolSize
         for i in range (self.poolSize):
             simulatedPool[i] = self.fanBracket.getWinnerBracket()
-        end = time.time()
-        # print(end - start)
-        return simulatedPool
+        self.fanPool = simulatedPool
+    
+    def _score(self, entry, actual):
+        # -Entry is the winnerBracket array of the 
+        #     bracket entry being scored
+        # -Actual is the actual occurence that determines score
+        noCorrect = []
+        totalPts = []
+        pointsPerRound = 320
+        rounds = int(np.log2(self.size))
+        for round in range(rounds, 0, -1):
+            start = 2 ** (round - 1)
+            end = 2 ** (round)
+            games = end - start
+            pointsPerGame = pointsPerRound / games
+
+            entryTms = [i.name for i in entry[start:end]]
+            actualTms = [i.name for i in actual[start:end]]
+            matches = [i for i in list(zip(entryTms, actualTms)) if i[0] == i[1]]
+            
+            noCorrect.append(len(matches))
+            totalPts.append(len(matches) * pointsPerGame)
+        return noCorrect, totalPts
+
+    def _scoreRank(self):
+        # NOTE
+        # Idea: save winnerBracket results as numpy arrays to keep results more
+        # condensed and to do operations quicker
+        #   - Idea came from sorting of fanPool, if it was n x (63  + 1) matrix,
+        #      we can preserve all info we need and sort fanPool, and keep it in 
+        #      condensed np.array format (instead) of creaing a separate new Object
+        #      for each fanPool Entry
+        if self.myBracket.winnerBracket is None:
+            self.myBracket.getWinnerBracket()
+        myRights, myScores = self._score(self.myBracket.winnerBracket, self.predBracket.winnerBracket)
+        self.myScore = sum(myScores)
+        self.myRights = sum(myRights)
+
+        for entry in self.fanPool:
+
+        return
         
 
 
@@ -75,10 +128,13 @@ class Simulation():
     
 if __name__ == "__main__":
     a = Simulation()
-    test = a.simulate()
-    print(test[0])
-    print(test[1])
-
+    # test = a.simulatePool()
+    a.runSimulation()
+    
+    # print(a.predBracket.winnerBracket)
+    # score = a._score(a.myBracket.winnerBracket, a.predBracket.winnerBracket)
+    # print(score)
+    
     # print(a.fanBracket.getWinnerBracket())
     # print(a.predBracket.getWinnerBracket())
     # print(a.myBracket.getWinnerBracket())
