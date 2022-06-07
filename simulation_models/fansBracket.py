@@ -67,6 +67,7 @@ class fansBracket(Bracket):
         teams = self.teams.teams
         
         winnerBracket = [None] * self.size
+        winnerBracket[0] = -1
         # Loop through each round
         for i in range(int(np.log2(self.size)) -1, -1, -1):
             gamesInRound = 2 ** (5 - i)
@@ -87,8 +88,8 @@ class fansBracket(Bracket):
                     winnerBracketIdx = winner.bracketId + 64
                     while winnerBracketIdx > gameIdx:
                         winnerBracketIdx = winnerBracketIdx // 2
-                        winnerBracket[winnerBracketIdx] = winner
-        return winnerBracket
+                        winnerBracket[winnerBracketIdx] = winner.bracketId
+        return np.array(winnerBracket)
 
         
 if __name__ == '__main__':

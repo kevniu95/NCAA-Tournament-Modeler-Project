@@ -4,6 +4,7 @@ sys.path.insert(0, '../data_structures/')
 import requests
 import re
 from bs4 import BeautifulSoup
+import numpy as np
 from bracket import Bracket
 from teams import Teams, specificEntryImporter
 
@@ -32,13 +33,13 @@ class userBracket(Bracket):
             spans = entry.find_all('span')
             teamName = spans[7].text
             winner = self.teams.nameTeamDict[teamName]
-            winners.append(winner)
+            winners.append(winner.bracketId)
         
         # B. Get winner of Championship game
         champ = soup.find_all('div', class_ = re.compile('center'))[0]
         winnerName = champ.find_all('span', class_ = 'name')[1].text
         winner = self.teams.nameTeamDict[winnerName]
-        winners.append(winner)
+        winners.append(winner.bracketId)
         self._assignWinners(winners)
         return self.winnerBracket
 
@@ -49,6 +50,8 @@ class userBracket(Bracket):
         self.winnerBracket[4:8] = winners[56:60]
         self.winnerBracket[2:4] = winners[60:62]
         self.winnerBracket[1:2] = winners[62:63]
+        self.winnerBracket[0] = -1
+        self.winnerBracket = np.array(self.winnerBracket)
 
 def main():
     entryImporter = specificEntryImporter()
@@ -58,6 +61,7 @@ def main():
     kevUrl = "https://fantasy.espn.com/tournament-challenge-bracket/2022/en/entry?entryID=53350427"
     test = userBracket(teams = teams, size = 64, userUrl = kevUrl)
     print(test.getWinnerBracket())
+    print(len(test.winnerBracket))
 
     
 if __name__ == '__main__':

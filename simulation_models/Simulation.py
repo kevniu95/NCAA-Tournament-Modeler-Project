@@ -79,7 +79,8 @@ class Simulation():
         simulatedPool = [None] * self.poolSize
         for i in range (self.poolSize):
             simulatedPool[i] = self.fanBracket.getWinnerBracket()
-        self.fanPool = simulatedPool
+        self.fanPool = np.array(simulatedPool)
+
     
     def _score(self, entry, actual):
         # -Entry is the winnerBracket array of the 
@@ -116,10 +117,6 @@ class Simulation():
         myRights, myScores = self._score(self.myBracket.winnerBracket, self.predBracket.winnerBracket)
         self.myScore = sum(myScores)
         self.myRights = sum(myRights)
-
-        for entry in self.fanPool:
-
-        return
         
 
 
@@ -130,7 +127,9 @@ if __name__ == "__main__":
     a = Simulation()
     # test = a.simulatePool()
     a.runSimulation()
-    
+    print(a.fanPool)
+    print(a.fanPool.shape)
+    print(a.fanPool[0])
     # print(a.predBracket.winnerBracket)
     # score = a._score(a.myBracket.winnerBracket, a.predBracket.winnerBracket)
     # print(score)

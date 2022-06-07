@@ -151,7 +151,7 @@ class predictionBracket(Bracket):
             
             bracketEntryWinner = bracketEntry.getWinner(self.inputObject)
             bracketEntryNextIndex = bracketEntry.getNextGameIndex()
-            self.winnerBracket[gameIndex] = bracketEntryWinner 
+            self.winnerBracket[gameIndex] = bracketEntryWinner.bracketId
             
             if thisRoundSize > 1:
                 self._insertBracketEntry(bracketEntryNextIndex)
@@ -166,6 +166,8 @@ class predictionBracket(Bracket):
     def getWinnerBracket(self, reset = False):
         while self.winnerBracket[1] is None:
             winnerBracket = self._simulateRound()
+            self.winnerBracket[0] = -1
+            self.winnerBracket = np.array(self.winnerBracket)
         if reset:
             self.bracketReset()
         return winnerBracket
