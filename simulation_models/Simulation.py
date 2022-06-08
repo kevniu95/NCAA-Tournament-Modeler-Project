@@ -69,6 +69,9 @@ class Simulation():
         self.myBracket.getWinnerBracket()
         self.predBracket.getWinnerBracket()
         self._simulatePool()
+        self._scoreRank()
+        # print(self.fanPool)
+        # self._score()
         # print(self.fanPool)
         
     def _simulatePool(self):
@@ -80,29 +83,30 @@ class Simulation():
         for i in range (self.poolSize):
             simulatedPool[i] = self.fanBracket.getWinnerBracket()
         self.fanPool = np.array(simulatedPool)
-
     
+    def _scoreRow(self, row, actual, ptFilter):
+        return (row == actual) * ptFilter
+
     def _score(self, entry, actual):
         # -Entry is the winnerBracket array of the 
         #     bracket entry being scored
         # -Actual is the actual occurence that determines score
-        noCorrect = []
-        totalPts = []
-        pointsPerRound = 320
         rounds = int(np.log2(self.size))
+        pointsPerRound = 320
+        scoringFilter = np.zeros(self.size)
         for round in range(rounds, 0, -1):
             start = 2 ** (round - 1)
             end = 2 ** (round)
             games = end - start
             pointsPerGame = pointsPerRound / games
-
-            entryTms = [i.name for i in entry[start:end]]
-            actualTms = [i.name for i in actual[start:end]]
-            matches = [i for i in list(zip(entryTms, actualTms)) if i[0] == i[1]]
-            
-            noCorrect.append(len(matches))
-            totalPts.append(len(matches) * pointsPerGame)
-        return noCorrect, totalPts
+            scoringFilter[start:end] = pointsPerGame
+        if np.ndim(entry) == 1:
+            entry = entry.reshape((-1, entry.shape[0]))
+        boolMat = entry == actual[None, :]
+        
+        boolMat = boolMat.reshape((boolMat.shape[0], -1))
+        scoreMat = np.matmul(boolMat, scoringFilter.reshape((scoringFilter.shape[0], -1)))
+        return np.hstack((entry, scoreMat))
 
     def _scoreRank(self):
         # NOTE
@@ -112,13 +116,16 @@ class Simulation():
         #      we can preserve all info we need and sort fanPool, and keep it in 
         #      condensed np.array format (instead) of creaing a separate new Object
         #      for each fanPool Entry
-        if self.myBracket.winnerBracket is None:
-            self.myBracket.getWinnerBracket()
-        myRights, myScores = self._score(self.myBracket.winnerBracket, self.predBracket.winnerBracket)
-        self.myScore = sum(myScores)
-        self.myRights = sum(myRights)
+        myScore = self._score(self.myBracket.winnerBracket, self.predBracket.winnerBracket)
+        fanScore = self._score(self.fanPool, self.predBracket.winnerBracket)
+        fanScore = fanScore[fanScore[:, -1].argsort()]
         
-
+        print(myScore)
+        print(fanScore)
+        print(fanScore[:, -1])
+        print((fanScore[:, -1] < myScore[:, -1]))
+        print((fanScore[:, -1] < myScore[:, -1]).sum())
+        # myScore[-1]
 
 # def main():
 #     a = Simulation()
@@ -127,11 +134,9 @@ if __name__ == "__main__":
     a = Simulation()
     # test = a.simulatePool()
     a.runSimulation()
-    print(a.fanPool)
-    print(a.fanPool.shape)
-    print(a.fanPool[0])
     # print(a.predBracket.winnerBracket)
     # score = a._score(a.myBracket.winnerBracket, a.predBracket.winnerBracket)
+    # score2 = a._score(a.fanPool, a.predBracket.winnerBracket)
     # print(score)
     
     # print(a.fanBracket.getWinnerBracket())
