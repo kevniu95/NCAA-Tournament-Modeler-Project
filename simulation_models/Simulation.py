@@ -15,13 +15,10 @@ import time
 from teams import Teams, specificEntryImporter
 from predictions import Predictions, KagglePredictionsGenerator
 
-
 # Get driver configuration
 from configparser import ConfigParser
 config = ConfigParser(os.environ)
 config.read(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'driver_config.ini'))
-
-
 
 class Simulation():
     def __init__(self, bracketTeams = None, predBracket = None, fanBracket = None, myBracket = None, bracketSize = 64,
@@ -35,8 +32,8 @@ class Simulation():
         self.poolSize = poolSize
 
         self.fanPool = None
-        self.myScore = None
-        self.myRights = None
+        self.score = None
+        self.percentile = None
     
     def initTeams(self, teams):
         if teams is None:
@@ -109,36 +106,19 @@ class Simulation():
         return np.hstack((entry, scoreMat))
 
     def _scoreRank(self):
-        # NOTE
-        # Idea: save winnerBracket results as numpy arrays to keep results more
-        # condensed and to do operations quicker
-        #   - Idea came from sorting of fanPool, if it was n x (63  + 1) matrix,
-        #      we can preserve all info we need and sort fanPool, and keep it in 
-        #      condensed np.array format (instead) of creaing a separate new Object
-        #      for each fanPool Entry
         myScore = self._score(self.myBracket.winnerBracket, self.predBracket.winnerBracket)
         fanScore = self._score(self.fanPool, self.predBracket.winnerBracket)
         fanScore = fanScore[fanScore[:, -1].argsort()]
-        
-        print(myScore)
-        print(fanScore)
-        print(fanScore[:, -1])
-        print((fanScore[:, -1] < myScore[:, -1]))
-        print((fanScore[:, -1] < myScore[:, -1]).sum())
-        # myScore[-1]
-
-# def main():
-#     a = Simulation()
+        self.score = myScore[:, -1][0]
+        # print(fanScore)
+        # print(fanScore[:, -1])
+        # print((fanScore[:, -1] < self.score))
+        outPerformed = (fanScore[:, -1] < self.score).sum()
+        self.percentile = (outPerformed / self.poolSize)
     
 if __name__ == "__main__":
     a = Simulation()
-    # test = a.simulatePool()
     a.runSimulation()
-    # print(a.predBracket.winnerBracket)
-    # score = a._score(a.myBracket.winnerBracket, a.predBracket.winnerBracket)
-    # score2 = a._score(a.fanPool, a.predBracket.winnerBracket)
-    # print(score)
+    print(a.score)
+    print(a.percentile)
     
-    # print(a.fanBracket.getWinnerBracket())
-    # print(a.predBracket.getWinnerBracket())
-    # print(a.myBracket.getWinnerBracket())
