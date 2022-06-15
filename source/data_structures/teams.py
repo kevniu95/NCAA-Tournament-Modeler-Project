@@ -14,6 +14,7 @@ class Teams():
         # Public attrs
         self.teams = teams # List of teams
         self.teamImporter = teamImporter
+        
         # Private attrs
         self._predIdDict = None
         self._nameTeamDict = None
@@ -67,7 +68,7 @@ class Teams():
         predIdDict = {}
         with open(file, 'r') as file:
             for num, row in enumerate(file):
-                if len((row[row.rfind(',') + 1:])) > 1:
+                if len((row[row.rfind(',') + 1:])) > 1 and num > 0:
                     name = row[row.rfind(',') + 1 :].strip()
                     predId = row[:row.find(',')].strip()
                     predIdDict[name] = predId
@@ -77,11 +78,10 @@ class Team():
     """
     Class representing NCAA Tournament Team
     """
-    def __init__(self, bracketId, name, region, seed):
+    def __init__(self, bracketId, name, seed):
         self.bracketId = bracketId
         self.name = name
         self.seed = seed
-        self.region = region
         self.predId = None # Initialized in Teams class
         self.pickPct = dict(zip(range(5), [None] * 5))
     
@@ -130,7 +130,7 @@ class teamImporter():
     def initiateTeams(self):
         pass
 
-class specificEntryImporter(teamImporter):
+class SpecificEntryImporter(teamImporter):
     """
     Subclass of teamImporter built to import ESPN
     national web page (i.e., "People's Bracket")
@@ -154,7 +154,7 @@ class specificEntryImporter(teamImporter):
             team_tag = slot.find_all('span', class_ = 'name')
             name = team_tag[0].text
             # Create Team
-            self.teams[teamCtr] = Team(teamCtr, name, None, seed)
+            self.teams[teamCtr] = Team(bracketId = teamCtr, name = name, seed = seed)
             teamCtr += 1
 
 class teamImporterBracketologyESPN(teamImporter):
@@ -212,7 +212,7 @@ if __name__ == "__main__":
     # for teamEntry in testImport.teams:
     #     print(teamEntry)
 
-    entryImporter = specificEntryImporter()
+    entryImporter = SpecificEntryImporter()
     teams = Teams(teamImporter = entryImporter)
     teams.setPredIds(file = '../data/MTeams.csv')
     # for team in teams.teams:
