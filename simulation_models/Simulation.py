@@ -112,12 +112,13 @@ class Simulation():
         fanScore = self._score(self.fanPool, self.predBracket.winnerBracket)
         fanScore = fanScore[fanScore[:, -1].argsort()]
         self.score = myScore[:, -1][0]
+        self.score_str = str(round(self.score))
         # print(f"The simulated fan pool of size {self.poolSize} produced the following scores: ")
         # print(fanScore)
         # print(fanScore[:, -1])
         # print((fanScore[:, -1] < self.score))
         outPerformed = (fanScore[:, -1] < self.score).sum()
-        self.percentile = (outPerformed / self.poolSize)
+        self.percentile = str(round(100 * (outPerformed / self.poolSize), 1))
         # print(f"Your bracket entry outperformed {outPerformed} simulated fan entries, better than{100 * self.percentile : .1f}"\
                 # "% of entries")
     
