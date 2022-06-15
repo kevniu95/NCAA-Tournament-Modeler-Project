@@ -21,12 +21,12 @@ config = ConfigParser(os.environ)
 config.read(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'driver_config.ini'))
 
 class Simulation():
-    def __init__(self, bracketTeams = None, predBracket = None, fanBracket = None, myBracket = None, bracketSize = 64,
+    def __init__(self, bracketTeams = None, predBracket = None, fanBracket = None, myBracketUrl = None, bracketSize = 64,
                     poolSize = 1000):
         self.teams = self.initTeams(bracketTeams)
         self.predBracket = self.initPred(predBracket)
         self.fanBracket = self.initFan(fanBracket)
-        self.myBracket = self.initUser(myBracket)
+        self.myBracket = self.initUser(myBracketUrl)
         
         self.size = bracketSize
         self.poolSize = poolSize
@@ -56,20 +56,22 @@ class Simulation():
             fanBracket = fansBracket(teams = self.teams, size = 64, bwUrl = bwUrl)
         return fanBracket
 
-    def initUser(self, myBracket):
-        if myBracket is None:
+    def initUser(self, myBracketUrl):
+        if myBracketUrl is None:
             userUrl = "https://fantasy.espn.com/tournament-challenge-bracket/2022/en/entry?entryID=53350427"
             myBracket = userBracket(teams = self.teams, size = 64, userUrl = userUrl)
+        else:
+            myBracket = userBracket(teams = self.teams, size = 64, userUrl = myBracketUrl)
         return myBracket
     
     def runSimulation(self):
+        """
+        For now, return score, percentile, 
+        """
         self.myBracket.getWinnerBracket()
         self.predBracket.getWinnerBracket()
         self._simulatePool()
         self._scoreRank()
-        # print(self.fanPool)
-        # self._score()
-        # print(self.fanPool)
         
     def _simulatePool(self):
         """
@@ -110,15 +112,30 @@ class Simulation():
         fanScore = self._score(self.fanPool, self.predBracket.winnerBracket)
         fanScore = fanScore[fanScore[:, -1].argsort()]
         self.score = myScore[:, -1][0]
+        # print(f"The simulated fan pool of size {self.poolSize} produced the following scores: ")
         # print(fanScore)
         # print(fanScore[:, -1])
         # print((fanScore[:, -1] < self.score))
         outPerformed = (fanScore[:, -1] < self.score).sum()
         self.percentile = (outPerformed / self.poolSize)
+        # print(f"Your bracket entry outperformed {outPerformed} simulated fan entries, better than{100 * self.percentile : .1f}"\
+                # "% of entries")
+    
+    def viewSimulatedResult(self):
+        """
+        Provides view of simulated 'reality'
+        """
+
+    def viewFanBracket(self, rkIdx):
+        """
+        Provides view of fan bracket based on rank-based index number
+        """
+        pass
     
 if __name__ == "__main__":
     a = Simulation()
     a.runSimulation()
-    print(a.score)
-    print(a.percentile)
-    
+    # print(a.myBracket.winnerBracket)
+    # print(a.fanPool)
+    # print(a.score)
+    # print(a.percentile)

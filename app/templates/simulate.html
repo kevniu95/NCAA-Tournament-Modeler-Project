@@ -1,0 +1,27 @@
+<!--
+annotate.html - Direct upload to Amazon S3 using signed POST request
+Copyright (C) 2011-2018 Vas Vasiliadis <vas@uchicago.edu>
+University of Chicago
+-->
+<!DOCTYPE html>
+<html>
+	<head>	
+		<title>HTML Cheat Sheet</title>
+	</head>
+  <body>
+		<!-- Headings -->
+		<h1>Welcome to Kevin's Bracket Simulator!</h1>
+
+		<!-- Forms -->
+		<form action="{{ url_for('results')}}" method="POST">
+			<div>
+				<label>Please enter the url of an ESPN bracket entry:</label>
+        <br>
+				<input type="text" name="espnLink" placeholder="https://fantasy.espn.com/tournament-challenge-bracket/2022/en/entry?entryID=71036256" >
+			</div>
+			<br>
+			<input type="submit" name="submit" value="Submit">
+		</form>
+
+	</body>
+</html>

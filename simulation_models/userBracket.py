@@ -37,7 +37,12 @@ class userBracket(Bracket):
         
         # B. Get winner of Championship game
         champ = soup.find_all('div', class_ = re.compile('center'))[0]
-        winnerName = champ.find_all('span', class_ = 'name')[1].text
+        
+        names = champ.find_all('span', class_ = 'name')
+        if len(names) > 1:
+            winnerName = champ.find_all('span', class_ = 'name')[1].text
+        else:
+            winnerName = champ.find_all('span', class_ = 'name')[0].text
         winner = self.teams.nameTeamDict[winnerName]
         winners.append(winner.bracketId)
         self._assignWinners(winners)
