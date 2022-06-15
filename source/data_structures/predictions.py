@@ -1,63 +1,9 @@
 import csv
 from abc import ABC, abstractmethod
 
-"""
-Classes to use predictions
-"""
-class PredictionsGenerator():
-    """
-    << Predictions Generator >>
-    """
-    def __init__(self, fileName):
-        self.file = fileName
-        self.probabilities = self.generateProbabilities()
-        
-    @abstractmethod
-    def generateProbabilities(self):
-        pass
-
-class KagglePredictionsGenerator(PredictionsGenerator):
-    """
-    Concrete subclass for <<PredictionsGenerator>>
-    KNOW: Any Kaggle Input Data
-    DO: Produce dictionary to be passed to be GamePredictions class
-            {key              :   value}
-        Ex. {(teamid, teamid) :   0.5}
-    """
-    def __init__(self, fileName):
-        super().__init__(fileName)
-        
-    def generateProbabilities(self):
-        probDictionary = {}
-        with open(self.file, 'r') as file:
-            for num, row in enumerate(file):
-                if num > 0:
-                    team1 = row[5:9]
-                    team2 = row[10:14]
-                    prob = row[15:]
-                    probDictionary[(team1, team2)] = float(prob)
-        return probDictionary    
-
-class Predictions():
-    """
-    Class that encapsulates choosing a concrete set of predictions
-    (Separated from KagglePredictionsGenerator in case predictions come in another form)
-    """
-    def __init__(self, generator = KagglePredictionsGenerator('../data/kaggle_predictions/testPredictions2021.csv')):
-        self.generator = generator
-        self._predictions = self.generator.probabilities
-
-    @property
-    def predictions(self):
-        return self._predictions
-    
-    @predictions.setter
-    def predictions(self, value):
-        print("Sorry, can't reset the predictions!")
-        return
 
 """
-Classes to build predictions
+A. Classes to build predictions
 """
 class predictionTemplate():
     """
@@ -128,6 +74,76 @@ class simpleSeedTemplate(predictionTemplate):
         diff = seed2 - seed1
         prob = 0.0315 * diff + 0.5
         return prob 
+
+
+
+"""
+B. Classes to use predictions
+"""
+class PredictionsGenerator():
+    """
+    << Predictions Generator >>
+    """
+    def __init__(self, fileName):
+        self.file = fileName
+        self._probabilities = None
+        self._generateProbabilities()
+        
+    @abstractmethod
+    def _generateProbabilities(self):
+        pass
+
+class KagglePredictionsGenerator(PredictionsGenerator):
+    """
+    Concrete subclass for <<PredictionsGenerator>>
+    KNOW: Any Kaggle Input Data
+    DO: Produce dictionary to be passed to be GamePredictions class
+            {key              :   value}
+        Ex. {(teamid, teamid) :   0.5}
+    """
+    def __init__(self, fileName):
+        super().__init__(fileName)
+        
+    def _generateProbabilities(self):
+        if self._probabilities is not None:
+            return self._probabilities
+        else:
+            probDictionary = {}
+            with open(self.file, 'r') as file:
+                for num, row in enumerate(file):
+                    if num > 0:
+                        team1 = row[5:9]
+                        team2 = row[10:14]
+                        prob = row[15:]
+                        probDictionary[(team1, team2)] = float(prob)
+            self._probabilities = probDictionary
+
+    @property
+    def probabilities(self):
+        return self._probabilities
+    
+    @probabilities.setter
+    def predictions(self, *args, **kwargs):
+        print("Sorry, can't change probabilities!")
+        return
+
+class Predictions():
+    """
+    Class that encapsulates choosing a concrete set of predictions
+    (Separated from KagglePredictionsGenerator in case predictions come in another form)
+    """
+    def __init__(self, generator):
+        self.generator = generator
+        self._predictions = self.generator.probabilities
+
+    @property
+    def predictions(self):
+        return self._predictions
+    
+    @predictions.setter
+    def predictions(self, value):
+        print("Sorry, can't reset the predictions!")
+        return
 
 def main():
     """
