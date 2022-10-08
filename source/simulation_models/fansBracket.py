@@ -6,7 +6,7 @@ import re
 import numpy as np
 from bs4 import BeautifulSoup
 from bracket import Bracket, BracketEntry
-from teams import Teams, specificEntryImporter
+from teams import Teams, SpecificEntryImporter
 
 class backwardBracketEntry(BracketEntry):
     def __init__(self, index, teamList, rd):
