@@ -29,3 +29,5 @@ def results():
     simRes = Simulation(myBracketUrl = link)
     simRes.runSimulation()
     return render_template('results.html', simRes =simRes)
+
+app.run(host='0.0.0.0', debug=True)
