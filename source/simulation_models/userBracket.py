@@ -6,7 +6,7 @@ import re
 from bs4 import BeautifulSoup
 import numpy as np
 from bracket import Bracket
-from teams import Teams, specificEntryImporter
+from teams import Teams, SpecificEntryImporter
 
 class userBracket(Bracket):
     def __init__(self, teams = None, size = 64, userUrl = None):

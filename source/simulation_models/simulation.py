@@ -12,7 +12,7 @@ from fansBracket import fansBracket
 from userBracket import userBracket
 import time
 
-from teams import Teams, specificEntryImporter
+from teams import Teams, SpecificEntryImporter
 from predictions import Predictions, KagglePredictionsGenerator
 
 # Get driver configuration
