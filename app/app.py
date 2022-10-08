@@ -6,9 +6,9 @@
 
 import sys 
 import uuid
-print(sys.path)
+# print(sys.path)
 sys.path.insert(0, '../source/simulation_models/')
-print(sys.path)
+# print(sys.path)
 
 
 from flask import (Flask, abort, flash, redirect, render_template, 

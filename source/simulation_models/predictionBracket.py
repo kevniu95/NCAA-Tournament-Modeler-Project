@@ -1,5 +1,5 @@
 import sys
-sys.path.insert(0, '../data_structures/')
+sys.path.insert(0, '../source/data_structures/')
 
 import numpy as np
 import random
