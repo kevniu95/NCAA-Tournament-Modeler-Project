@@ -4,7 +4,7 @@ sys.path.insert(0, '../source/data_structures/')
 import numpy as np
 import random
 import math
-from teams import Teams, specificEntryImporter
+from teams import Teams, SpecificEntryImporter
 from bracket import BracketEntry, Bracket
 from predictions import Predictions, KagglePredictionsGenerator
     
