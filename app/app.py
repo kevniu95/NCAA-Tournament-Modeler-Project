@@ -6,7 +6,9 @@
 
 import sys 
 import uuid
+import os
 # print(sys.path)
+os.chdir(os.path.dirname(os.path.realpath(__file__)))
 sys.path.insert(0, '../source/simulation_models/')
 # print(sys.path)
 
