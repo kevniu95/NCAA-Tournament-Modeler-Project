@@ -40,12 +40,12 @@ class Simulation():
             # A. Import Teams
             entryImporter = SpecificEntryImporter()
             teams = Teams(teamImporter = entryImporter)
-            teams.setPredIds(file = '../Data/MTeams.csv')
+            teams.setPredIds(file = '../source/data/MTeams.csv')
         return teams
 
     def initPred(self, predBracket):
         if predBracket is None:
-            generator = KagglePredictionsGenerator('../data/kaggle_predictions/seedPreds2022.csv')
+            generator = KagglePredictionsGenerator('../source/data/kaggle_predictions/seedPreds2022.csv')
             predictions = Predictions(generator)
             predBracket = predictionBracket(inputObject = predictions, teams = self.teams, size = 64)
         return predBracket
