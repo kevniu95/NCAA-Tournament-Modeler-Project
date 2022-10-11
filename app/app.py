@@ -8,7 +8,7 @@ import sys
 import uuid
 import os
 # print(sys.path)
-sys.path.insert(0, '~/ncaa/source/simulation_models/')
+sys.path.insert(0, '$/home/ec2-user/ncaa/source/simulation_models/')
 # print(sys.path)
 
 
