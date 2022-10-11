@@ -38,7 +38,7 @@ class Simulation():
     def initTeams(self, teams):
         if teams is None:
             # A. Import Teams
-            entryImporter = specificEntryImporter()
+            entryImporter = SpecificEntryImporter()
             teams = Teams(teamImporter = entryImporter)
             teams.setPredIds(file = '../Data/MTeams.csv')
         return teams

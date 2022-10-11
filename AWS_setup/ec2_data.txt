@@ -9,12 +9,12 @@ pip3 install --upgrade pip
 aws s3 cp s3://kniu-ncaa/ec2-config/ncaa_rqmts.txt /home/ec2-user/config/ncaa_rqmts.txt
 pip3 install -r /home/ec2-user/config/ncaa_rqmts.txt
 
-
+# 2. Copy rest of ncaa project folder from git
 sudo yum install git -y
 git clone https://github.com/kevniu95/NCAA-Tournament-Modeler-Project /home/ec2-user/ncaa
 
 # 3. Pip install needed requirements
-echo "source ${HOME}/env/bin/activate" >> ${HOME}/.bashrc
-source ~/.bashrc
+# echo "source ${HOME}/env/bin/activate" >> ${HOME}/.bashrc
+# source ~/.bashrc
 
 
