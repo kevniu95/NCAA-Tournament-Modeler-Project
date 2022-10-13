@@ -6,7 +6,9 @@ from teams import Team, Teams, SpecificEntryImporter
 
 
 """
-A. Classes to build predictions
+A. Classes to build files containing 
+    matchup (Team vs Team) predictions in 
+    Kaggle-acceptable *.csv format
 """
 class PredictionTemplate():
     """
@@ -72,7 +74,9 @@ class simpleSeedTemplate(PredictionTemplate):
 
 
 """
-B. Classes to use predictions
+B. Classes to instantiate an actual Predictions object
+    from Kaggle acceptable *.csv format (written out 
+    by PredictionTemplate above)
 """
 class PredictionsGenerator():
     """

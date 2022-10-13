@@ -5,7 +5,7 @@ class BracketEntry():
     """
     Wraps object of Game class in a BracketEntry
     -Takes teams one by one and instantiates a game 
-        when two teams added two BracketEntry object
+        when two teams added to BracketEntry object
     -Identifies winner of game
     -Identifies next game in bracket (where winner advances to)
     """
