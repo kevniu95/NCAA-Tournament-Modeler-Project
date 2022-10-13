@@ -204,8 +204,12 @@ class Teams():
                 and their ids
         """
         predIdDict = {}
+
         with open(file, 'r') as file:
             for num, row in enumerate(file):
+                # NOTE: MTeams_.csv is (1) raw Kaggle data + 
+                #                      (2) ESPN names determined manualy
+                # Only take entries where ESPN names exist
                 if len((row[row.rfind(',') + 1:])) > 1 and num > 0:
                     name = row[row.rfind(',') + 1 :].strip()
                     predId = row[:row.find(',')].strip()
@@ -224,7 +228,7 @@ if __name__ == "__main__":
     #     print()
 
     teams = Teams(teamImporter = entryImporter)
-    teams.setPredIds(file = '../data/MTeams.csv')
+    teams.setPredIds(file = '../data/MTeams_.csv')
     for team in teams.teams:
         print(team)
     
