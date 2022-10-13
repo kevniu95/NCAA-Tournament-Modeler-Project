@@ -7,27 +7,41 @@ import re
 import numpy as np
 from bs4 import BeautifulSoup
 from bracket import Bracket, BracketEntry
-from teams import Teams, SpecificEntryImporter
+from teams import Team, Teams, SpecificEntryImporter
 
 class backwardBracketEntry(BracketEntry):
-    def __init__(self, index, teamList, rd):
+    """
+    Bracket entry with following information:
+    - index : int - the index of this entry in the overall Bracket structure
+    - teamList : list[Team] - the subset of teams from Teams
+                    that can compete in the game at this point in teh bracket
+                    - e.g., Game 1, the championship can be won by all teams
+                    - e.g., Game 32, the 1st round game for the #1 overall seed can be won
+                            by only two teams
+    - rd : int - the round that this bracketEntry occurs in 
+                -so we can lookup how many people selected team i to advance in this round
+    """
+    def __init__(self, index : int, teamList : list[Team], rd : int):
         super().__init__(index)
-        self.teamList = teamList
-        self.rd = rd
-        self.sorted = None
+        self.teamList : list[Team] = teamList
+        self.rd : int = rd
+        # self.sorted : bool = None
     
-    def getWinner(self):
+    def getWinner(self) -> Team:
         currVal = 0
         i = 0
-        if self.sorted is None or self.sorted == False:
-            self.teamList.sort(key = lambda x : x.pickPct[self.rd], reverse= True)
-            self.sorted = True
+        # if self.sorted is None or self.sorted == False:
+        #     self.teamList.sort(key = lambda x : x.pickPct[self.rd], reverse= True)
+        #     self.sorted = True
         val = np.random.uniform(0, 1)
         retries = 0
         while val > currVal:
             try:
                 currVal += self.teamList[i].pickPct[self.rd]
             except:
+                # Sometimes randomly selected value exceeds
+                #  total of individual probabilities due to
+                #  rounding errors
                 val = np.random.uniform(0, 1) 
                 i = 0
                 retries += 1
@@ -38,17 +52,22 @@ class backwardBracketEntry(BracketEntry):
         return self.winner
 
 class fansBracket(Bracket):
-    def __init__(self, teams = None, size = 64, bwUrl = None):
+    def __init__(self, teams : Teams = None,
+                        size : int = 64, 
+                        url : str = "https://fantasy.espn.com/tournament-challenge-bracket/2022/en/whopickedwhom"):
         super().__init__(size = size)
-        self.teams = teams
+        self.teams : Teams = teams
         # bwUrl is the url link to where the ESPN Who Picked Whom information is located
-        if bwUrl is None:
-            self.url = "https://fantasy.espn.com/tournament-challenge-bracket/2022/en/whopickedwhom"
-        else:
-            self.url = bwUrl
+        self.url : str = url
         self._getPickInfo()
 
     def _getPickInfo(self):
+        """
+        For each Team in Teams, updates the pickPct
+            -This means for each Team i, for each round j in {0 - 5}, inclusive)
+                - we fill in how many ESPN contestants picked 
+                   team i to win in round j
+        """
         page = requests.get(self.url)
         soup = BeautifulSoup(page.content, 'html.parser')
 
@@ -63,6 +82,9 @@ class fansBracket(Bracket):
                 teamObject.setPick(round = i, pct = teamPct)
     
     def getWinnerBracket(self):
+        """
+        This is the function that 'simulates' the tournament
+        """
         # Sort teams (of object Teams) by bracket ID
         self.teams.teams.sort(key = lambda x: x.bracketId)
         teams = self.teams.teams
@@ -70,19 +92,19 @@ class fansBracket(Bracket):
         winnerBracket = [None] * self.size
         winnerBracket[0] = -1
         # Loop through each round
-        for i in range(int(np.log2(self.size)) -1, -1, -1):
-            gamesInRound = 2 ** (5 - i)
-            roundStartIdx = 2 ** (5 - i)
-            teamsInGame = int(self.size / gamesInRound)
+        for rd in range(int(np.log2(self.size)) -1, -1, -1):
+            gamesInRound = 2 ** (5 - rd)
+            roundStartIdx = 2 ** (5 - rd)
+            possibleTeamsInGame = int(self.size / gamesInRound)
             ctr = 0 # Tracks which set of teams to put in the next game of this round i
             for gameIdx in range(roundStartIdx, roundStartIdx + gamesInRound):
                 # Subset to correct set of teams that are playing in this game
-                teamList = teams[ctr : ctr + teamsInGame]
+                teamList = teams[ctr : ctr + possibleTeamsInGame]
                 # Move to next set of teams for next game
-                ctr += teamsInGame
+                ctr += possibleTeamsInGame
                 # Create a backwards Bracket Entry if there isn't one already
                 if winnerBracket[gameIdx] is None:
-                    thisEntry = backwardBracketEntry(gameIdx, teamList, i)
+                    thisEntry = backwardBracketEntry(gameIdx, teamList, rd)
                     winner = thisEntry.getWinner()
                     winnerBracket[gameIdx] = winner
 
@@ -96,10 +118,11 @@ class fansBracket(Bracket):
 if __name__ == '__main__':
     entryImporter = SpecificEntryImporter()
     teams = Teams(teamImporter = entryImporter)
-    teams.setPredIds(file = '../Data/MTeams.csv')
+    teams.setPredIds(file = '../Data/MTeams_.csv')
     
     for i in range(1000):
-        test = fansBracket(teams = teams, size = 64, bwUrl = None)
+        print(i)
+        test = fansBracket(teams = teams, size = 64)
         test._getPickInfo()
         test.getWinnerBracket()
     

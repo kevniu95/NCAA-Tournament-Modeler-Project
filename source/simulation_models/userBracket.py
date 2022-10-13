@@ -60,7 +60,7 @@ class userBracket(Bracket):
         self.winnerBracket = np.array(self.winnerBracket)
 
 def main():
-    entryImporter = specificEntryImporter()
+    entryImporter = SpecificEntryImporter()
     teams = Teams(teamImporter = entryImporter)
     teams.setPredIds(file = '../data/MTeams.csv')
     
