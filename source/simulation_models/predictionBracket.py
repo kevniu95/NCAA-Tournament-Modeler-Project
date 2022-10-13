@@ -1,5 +1,6 @@
 import sys
 sys.path.insert(0, '../source/data_structures/')
+sys.path.insert(0, '../data_structures/')
 
 import numpy as np
 import random
@@ -184,7 +185,7 @@ if __name__ == "__main__":
     # print(predictions.predictions)
     
     # B. Import Teams
-    entryImporter = specificEntryImporter()
+    entryImporter = SpecificEntryImporter()
     teams = Teams(teamImporter = entryImporter)
     teams.setPredIds(file = '../Data/MTeams.csv')
     # print(teams.teams)

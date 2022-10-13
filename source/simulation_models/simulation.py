@@ -1,6 +1,7 @@
 from ast import Pass
 import sys
 sys.path.insert(0, '../source/data_structures/')
+sys.path.insert(0, '../data_structures/')
 
 import os
 import requests

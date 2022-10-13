@@ -1,5 +1,6 @@
 import sys
 sys.path.insert(0, '../source/data_structures/')
+sys.path.insert(0, '../data_structures/')
 
 import requests
 import re
@@ -93,7 +94,7 @@ class fansBracket(Bracket):
 
         
 if __name__ == '__main__':
-    entryImporter = specificEntryImporter()
+    entryImporter = SpecificEntryImporter()
     teams = Teams(teamImporter = entryImporter)
     teams.setPredIds(file = '../Data/MTeams.csv')
     

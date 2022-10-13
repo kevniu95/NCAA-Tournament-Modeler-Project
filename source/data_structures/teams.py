@@ -79,6 +79,15 @@ class Team():
     Class representing NCAA Tournament Team
     """
     def __init__(self, bracketId, name, seed):
+        """
+        bracketId : int -  indicates the id of the team on the bracket
+                            -identifies teams within context of specific bracket 
+                            structure for a given year
+        predId : int - indicates id of team in predictions structure
+                            -NOTE: predictions are generated using separate methodology
+                            -Therefore teams need identifier for where they fit in bracket 
+                            structure (bracketId), but also identifier for predictions (predId)    
+        """
         self.bracketId = bracketId
         self.name = name
         self.seed = seed
@@ -154,7 +163,7 @@ class SpecificEntryImporter(teamImporter):
             team_tag = slot.find_all('span', class_ = 'name')
             name = team_tag[0].text
             # Create Team
-            self.teams[teamCtr] = Team(bracketId = teamCtr, name = name, seed = seed)
+            self.teams[teamCtr] = Team(bracketId = teamCtr, name = name, seed = int(seed))
             teamCtr += 1
 
 class teamImporterBracketologyESPN(teamImporter):
