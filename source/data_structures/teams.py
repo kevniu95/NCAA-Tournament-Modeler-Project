@@ -107,7 +107,7 @@ class TeamImporterBracketologyESPN(TeamImporter):
     """
     Subclass of TeamImporter built to import ESPN
     bracketology web page
-    -NOTE this is most useful when the NCAA Tournament
+    -NOTE: this is most useful when the NCAA Tournament
         bracket has not actually been determined in 
         real life yet and it'd still be helpful to 
         visualize using a "mock" tournament
@@ -131,9 +131,6 @@ class TeamImporterBracketologyESPN(TeamImporter):
                 teamCtr += 1
     
     def readBracketItem(self, bracketItem):
-        """
-        TODO: UPDATE THIS AS NEEDED
-        """
         bracketItemList = bracketItem.text.split(' ', 1)
         seedPortion = bracketItemList[0]
         teamPortion = bracketItemList[1].strip()
@@ -160,14 +157,12 @@ class Teams():
         """
         Specify either a list of individual Team(s) or use teamImporter to initialize
         """
-        # Public attrs
         self.teams : list[Team] = teams # List of teams
         self.teamImporter : TeamImporter = teamImporter
-        # Private attrs
-        self._predIdDict : Dict[str, int] = None # name to id
-        self._nameTeamDict : Dict[str, Team] = None # name to Team object
+        
+        self._predIdDict : Dict[str, int] = None 
+        self._nameTeamDict : Dict[str, Team] = None 
 
-        # Initialization f(x)
         if self.teams is None:
             self._initiateTeams()
         elif self.teamImporter is None:
@@ -180,7 +175,7 @@ class Teams():
     @property 
     def nameTeamDict(self) -> Dict[str, Team]:
         """
-        Creates Dictionary between team name and actual Team entry
+        Dictionary between team name and actual Team entry
         """
         if self._nameTeamDict is None:
             self._nameTeamDict = {team.name : team for team in self.teams}
@@ -193,26 +188,20 @@ class Teams():
     
     def setPredIds(self, file : str):
         """
-        Establishes prediction - lookup IDs for each team in Teams list
+        Creates predIdDict (more info below)
         NOTE: For each Team object in Teams list, the Team predId attribute
             is updated HERE
         """
-        # Set self.teamDict
         self._setPredLookup(file)
 
-        # Then use that to assign predIds to each team in list
         for team in self.teams:
             team.predId = self._predIdDict[team.name]
 
     def _setPredLookup(self, file : str):
         """
-        Creates lookup to use in setting up Prediction Ids (function below)
-        Input:
-        # NOTE: Look to make more general in future if necessary
-            -file: For now, a CSV file containing lookup between team names and Kaggle competition IDs
-            - i.e., this version is specific to input used in Kaggle competition
-        Returns:
-            -Dictionary with proper ID for each team in team List
+        Creates dictionary between team name and prediction id
+            - NOTE: Look to generalize if moving past Kaggle set-up 
+                and their ids
         """
         predIdDict = {}
         with open(file, 'r') as file:
