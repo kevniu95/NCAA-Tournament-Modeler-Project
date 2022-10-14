@@ -9,7 +9,7 @@ from bs4 import BeautifulSoup
 from bracket import Bracket, BracketEntry
 from teams import Team, Teams, SpecificEntryImporter
 
-class backwardBracketEntry(BracketEntry):
+class BackwardBracketEntry(BracketEntry):
     """
     Bracket entry with following information:
     - index : int - the index of this entry within the overall Bracket structure
@@ -47,7 +47,7 @@ class backwardBracketEntry(BracketEntry):
         self.winner = self.teamList[i - 1]
         return self.winner
 
-class fansBracket(Bracket):
+class FansBracket(Bracket):
     def __init__(self, teams : Teams = None,
                         size : int = 64, 
                         url : str = "https://fantasy.espn.com/tournament-challenge-bracket/2022/en/whopickedwhom"):
@@ -100,7 +100,7 @@ class fansBracket(Bracket):
                 ctr += possibleTeamsInGame
                 # Create a backwards Bracket Entry if there isn't one already
                 if winnerBracket[gameIdx] is None:
-                    thisEntry = backwardBracketEntry(gameIdx, teamList, rd)
+                    thisEntry = BackwardBracketEntry(gameIdx, teamList, rd)
                     winner = thisEntry.getWinner()
                     winnerBracket[gameIdx] = winner
 
@@ -116,9 +116,8 @@ if __name__ == '__main__':
     teams = Teams(teamImporter = entryImporter)
     teams.setPredIds(file = '../Data/MTeams_.csv')
     
+    test = FansBracket(teams = teams, size = 64)
     for i in range(1000):
-        print(i)
-        test = fansBracket(teams = teams, size = 64)
-        test._getPickInfo()
+        print(i)    
         test.getWinnerBracket()
     

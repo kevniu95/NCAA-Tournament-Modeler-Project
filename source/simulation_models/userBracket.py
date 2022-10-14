@@ -9,7 +9,7 @@ import numpy as np
 from bracket import Bracket
 from teams import Team, Teams, SpecificEntryImporter
 
-class userBracket(Bracket):
+class UserBracket(Bracket):
     def __init__(self, teams : Teams = None, size : int = 64, userUrl : str = None):
         super().__init__(size = size)
         self.teams = teams
@@ -61,7 +61,7 @@ def main():
     teams.setPredIds(file = '../data/MTeams_.csv')
     
     kevUrl = "https://fantasy.espn.com/tournament-challenge-bracket/2022/en/entry?entryID=53350427"
-    test = userBracket(teams = teams, size = 64, userUrl = kevUrl)
+    test = UserBracket(teams = teams, size = 64, userUrl = kevUrl)
     print(test.getWinnerBracket())
     print(len(test.winnerBracket))
 

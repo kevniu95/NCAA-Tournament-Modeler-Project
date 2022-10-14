@@ -43,13 +43,6 @@ class Game():
         return f"{self.team1} vs. {self.team2}"
         
 class PredictionBracketEntry(BracketEntry):
-    # TODO: Update so that assign first round is happening once 
-    # per instance of this class
-    # -And each call of getWinnerBracket() returns a new instance of 
-    #   winner list
-    # -Therefore self.round and self.winnerbracket aren't needed 
-    #   anymore
-    # 
     def __init__(self, index : int):
         super().__init__(index)
         self.team1 : Team = None
@@ -87,7 +80,7 @@ class PredictionBracketEntry(BracketEntry):
         print("The BracketEntry's game property cannot be reset! Please add teams to entry to instantiate a game!")
         return
 
-class predictionBracket(Bracket):
+class PredictionBracket(Bracket):
     def __init__(self, inputObject : Predictions, teams : Teams = None, size : int = 64):
         super().__init__(size = size)
         self.teams : Teams = teams
@@ -115,7 +108,7 @@ class predictionBracket(Bracket):
         """
         Maintains state indicating which round (indexing from 1) is currently 
         being processed
-            - Remember self.gameBracket is filled from back to front of array
+            - self.gameBracket is filled from back to front of array
                 - This means at start of first round, first non-null value is index 32
                     - So round returned will be "1"
                 - In second round, first non-null value is index 16
@@ -136,7 +129,7 @@ class predictionBracket(Bracket):
         """
         Simulates current round by finding all BracketEntries associated with round
             and simulating games
-        Advances winners of games in next round
+        Advances winners of games to next round
         """
         gamesThisRound = self.size / (2 ** self.round) 
         
@@ -196,7 +189,7 @@ if __name__ == "__main__":
     # print(teams.teams)
     
     # C. Create Bracket
-    testBracket = predictionBracket(inputObject = predictions, teams = teams, size = 64)
+    testBracket = PredictionBracket(inputObject = predictions, teams = teams, size = 64)
     # [print(num, i) for num, i in enumerate(testBracket.gameBracket)]
     # [print(num, i) for num, i in enumerate(testBracket.winnerBracket)]
     
