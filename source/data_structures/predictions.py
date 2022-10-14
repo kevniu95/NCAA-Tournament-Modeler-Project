@@ -115,7 +115,7 @@ class KagglePredictionsGenerator(PredictionsGenerator):
                         id1 = row[5:9]
                         id2 = row[10:14]
                         prob = row[15:]
-                        probDictionary[(id1, id2)] = float(prob)
+                        probDictionary[(int(id1), int(id2))] = round(float(prob),5)
             self._probabilities = probDictionary
 
     @property
@@ -156,10 +156,10 @@ def main():
     teams.setPredIds(file = '../data/MTeams.csv')
     
     tmp1 = blankTemplate(2022, teams)
-    tmp1.writeMatchups('../data/kaggle_predictions/predTemplate2022')
+    tmp1.writeMatchups('../data/kaggle_predictions/predTemplate2022_')
 
     tmp2 = simpleSeedTemplate(2022, teams)
-    tmp2.writeMatchups('../data/kaggle_predictions/seedPreds2022')
+    tmp2.writeMatchups('../data/kaggle_predictions/seedPreds2022_')
 
 
 if __name__ == '__main__':

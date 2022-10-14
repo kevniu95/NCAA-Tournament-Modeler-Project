@@ -128,7 +128,7 @@ class predictionBracket(Bracket):
             ctr += 1
         
     @round.setter
-    def round(self, value):
+    def round(self, *args, ** kwargs):
         print("Round is an internally-determined property and cannot be reset!")
         return
     
@@ -138,44 +138,50 @@ class predictionBracket(Bracket):
             and simulating games
         Advances winners of games in next round
         """
-        thisRoundSize = self.size / (2 ** self.round) 
+        gamesThisRound = self.size / (2 ** self.round) 
         
-        if (thisRoundSize == int(thisRoundSize) and (thisRoundSize % 2 == 0)) or (thisRoundSize == 1):
-            thisRoundSize = int(thisRoundSize)
+        if (gamesThisRound % 2 == 0) or (gamesThisRound == 1):
+            gamesThisRound = int(gamesThisRound)
         else:
-            print("Hmmm, the size of this round should be an even integer!")
-            raise ValueError
+            raise ValueError ("The size of this round should be an even integer or 1")
                 
-        for gameIndex in range(thisRoundSize, thisRoundSize * 2):
-            bracketEntry = self.gameBracket[gameIndex]
+        for gameIndex in range(gamesThisRound, gamesThisRound * 2):
+            # Access bracketEntry at this game Index
+            bracketEntry : PredictionBracketEntry = self.gameBracket[gameIndex]
+            if not bracketEntry:
+                raise IndexError("Entry selected from self.gameBracket has not been assigned yet")
+
+            # Simulate winner and assign winner to winnerBracket
+            bracketEntryWinner : Team = bracketEntry.getWinner(self.inputObject)
+            self.winnerBracket[gameIndex] : int = bracketEntryWinner.bracketId
             
-            bracketEntryWinner = bracketEntry.getWinner(self.inputObject)
-            bracketEntryNextIndex = bracketEntry.getNextGameIndex()
-            self.winnerBracket[gameIndex] = bracketEntryWinner.bracketId
-            
-            if thisRoundSize > 1:
+            if gamesThisRound > 1:
+                # Establish bracketEntry for winner's next game if doesn't exist already
+                bracketEntryNextIndex : int = bracketEntry.getNextGameIndex()
                 self._insertBracketEntry(bracketEntryNextIndex)
+                # Then add winner to that game
                 nextEntry = self.gameBracket[bracketEntryNextIndex]
                 nextEntry.addTeam(bracketEntryWinner)
         return self.winnerBracket
     
-    def _insertBracketEntry(self, index):
+    def _insertBracketEntry(self, index : int):
         if self.gameBracket[index] is None:
             self.gameBracket[index] = PredictionBracketEntry(index)
     
-    def getWinnerBracket(self, reset = False):
+    def getWinnerBracket(self, reset = False) -> np.ndarray:
+        self.winnerBracket[0] = -1
         while self.winnerBracket[1] is None:
             winnerBracket = self._simulateRound()
-            self.winnerBracket[0] = -1
-            self.winnerBracket = np.array(self.winnerBracket)
+        self.winnerBracket = np.array(self.winnerBracket)
         if reset:
+            print("I am resetting")
             self.bracketReset()
         return winnerBracket
     
     def bracketReset(self):
         self.gameBracket = [None] * self.size
         self.winnerBracket = [None] * self.size
-        self.assignFirstRound()
+        self._assignFirstRound()
 
 if __name__ == "__main__":
     # A. Import Predictions
@@ -186,17 +192,17 @@ if __name__ == "__main__":
     # B. Import Teams
     entryImporter = SpecificEntryImporter()
     teams = Teams(teamImporter = entryImporter)
-    teams.setPredIds(file = '../Data/MTeams.csv')
+    teams.setPredIds(file = '../Data/MTeams_.csv')
     # print(teams.teams)
     
     # C. Create Bracket
     testBracket = predictionBracket(inputObject = predictions, teams = teams, size = 64)
-    # print(testBracket.gameBracket)
-    # print(testBracket.winnerBracket)
-
-    # D. Simulate Tournament
+    # [print(num, i) for num, i in enumerate(testBracket.gameBracket)]
+    # [print(num, i) for num, i in enumerate(testBracket.winnerBracket)]
+    
+    # # D. Simulate Tournament
     print(testBracket.getWinnerBracket(reset = False))
-    # print(testBracket.gameBracket)
-    # print()
-    # print(testBracket.winnerBracket)
+    # [print(num, i) for num, i in enumerate(testBracket.gameBracket)]
+    # [print(num, teams.teams[i].name) if num > 0 else print("") for num, i in enumerate(testBracket.winnerBracket)]
+    
     

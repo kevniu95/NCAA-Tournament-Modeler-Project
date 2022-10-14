@@ -1,5 +1,6 @@
 from multiprocessing.sharedctypes import Value
 from abc import abstractmethod
+import numpy as np
     
 class BracketEntry():
     """
@@ -38,7 +39,7 @@ class Bracket():
         self.winnerBracket : list[int] = [None] * size
         
     @abstractmethod
-    def getWinnerBracket(self) -> list[int]:
+    def getWinnerBracket(self) -> np.ndarray:
         """
         This is the function that 'simulates' the tournament
         """
