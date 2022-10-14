@@ -27,7 +27,7 @@ class Team():
         Exists to assist with creating simulated bracket from Fan Picks
         (ESPN Who Picked Whom data)
         """
-        self.pickPct : Dict[int, int] = dict(zip(range(5), [None] * 5))
+        self.pickPct : Dict[int, float] = dict(zip(range(5), [None] * 5))
     
     def setPick(self, round : int, pct : str):
         """

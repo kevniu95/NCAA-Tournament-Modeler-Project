@@ -7,33 +7,29 @@ import re
 from bs4 import BeautifulSoup
 import numpy as np
 from bracket import Bracket
-from teams import Teams, SpecificEntryImporter
+from teams import Team, Teams, SpecificEntryImporter
 
 class userBracket(Bracket):
-    def __init__(self, teams = None, size = 64, userUrl = None):
-        """
-        bwUrl is the url link to where the ESPN Who Picked Whom information is located
-        """
+    def __init__(self, teams : Teams = None, size : int = 64, userUrl : str = None):
         super().__init__(size = size)
         self.teams = teams
         # userUrl is the url link to where the specific ESPN bracket entry is located
-        if userUrl is None:
+        self.url = userUrl
+        if self.url is None:
             self.url = "https://fantasy.espn.com/tournament-challenge-bracket/2022/en/entry?entryID=53350427"
-        else:
-            self.url = userUrl
 
-    def getWinnerBracket(self):
+    def getWinnerBracket(self) -> np.ndarray:
         page = requests.get(self.url)
         soup = BeautifulSoup(page.content, 'html.parser')
 
         picks = soup.find_all('div', class_ = re.compile('slot s_'))
         nonChampWinners = [pick for pick in picks if int(pick['data-slotindex']) > 63]
-        winners = []
+        winners : list[int] = []
         # A. Get everyone except for winner of Championship game
         for entry in nonChampWinners:
             spans = entry.find_all('span')
-            teamName = spans[7].text
-            winner = self.teams.nameTeamDict[teamName]
+            teamName : str = spans[7].text
+            winner : Team = self.teams.nameTeamDict[teamName]
             winners.append(winner.bracketId)
         
         # B. Get winner of Championship game
@@ -44,12 +40,12 @@ class userBracket(Bracket):
             winnerName = champ.find_all('span', class_ = 'name')[1].text
         else:
             winnerName = champ.find_all('span', class_ = 'name')[0].text
-        winner = self.teams.nameTeamDict[winnerName]
+        winner : Team = self.teams.nameTeamDict[winnerName]
         winners.append(winner.bracketId)
-        self._assignWinners(winners)
+        self.winnerBracket = self._assignWinners(winners)
         return self.winnerBracket
 
-    def _assignWinners(self, winners):
+    def _assignWinners(self, winners : list[int]) -> np.ndarray:
         self.winnerBracket[32:] = winners[:32]
         self.winnerBracket[16:32] = winners[32:48]
         self.winnerBracket[8:16] = winners[48:56]
@@ -57,12 +53,12 @@ class userBracket(Bracket):
         self.winnerBracket[2:4] = winners[60:62]
         self.winnerBracket[1:2] = winners[62:63]
         self.winnerBracket[0] = -1
-        self.winnerBracket = np.array(self.winnerBracket)
+        return np.array(self.winnerBracket)
 
 def main():
     entryImporter = SpecificEntryImporter()
     teams = Teams(teamImporter = entryImporter)
-    teams.setPredIds(file = '../data/MTeams.csv')
+    teams.setPredIds(file = '../data/MTeams_.csv')
     
     kevUrl = "https://fantasy.espn.com/tournament-challenge-bracket/2022/en/entry?entryID=53350427"
     test = userBracket(teams = teams, size = 64, userUrl = kevUrl)

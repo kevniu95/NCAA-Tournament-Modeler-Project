@@ -12,9 +12,9 @@ from teams import Team, Teams, SpecificEntryImporter
 class backwardBracketEntry(BracketEntry):
     """
     Bracket entry with following information:
-    - index : int - the index of this entry in the overall Bracket structure
-    - teamList : list[Team] - the subset of teams from Teams
-                    that can compete in the game at this point in teh bracket
+    - index : int - the index of this entry within the overall Bracket structure
+    - teamList : list[Team] - the subset of teams from Teams that compete in this
+                    game
                     - e.g., Game 1, the championship can be won by all teams
                     - e.g., Game 32, the 1st round game for the #1 overall seed can be won
                             by only two teams
@@ -25,7 +25,6 @@ class backwardBracketEntry(BracketEntry):
         super().__init__(index)
         self.teamList : list[Team] = teamList
         self.rd : int = rd
-        # self.sorted : bool = None
     
     def getWinner(self) -> Team:
         currVal = 0
