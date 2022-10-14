@@ -5,7 +5,7 @@ sys.path.insert(0, '../data_structures/')
 import numpy as np
 import random
 import math
-from teams import Teams, SpecificEntryImporter
+from teams import Team, Teams, SpecificEntryImporter
 from bracket import BracketEntry, Bracket
 from predictions import Predictions, KagglePredictionsGenerator
     
@@ -15,23 +15,20 @@ class Game():
     - Contains information on two teams by ID
     - Retrieves predictions from object of Predictions class and simulates an outcome
     """
-    def __init__(self, team1, team2):
-        self.team1 = team1
-        self.team2 = team2
+    def __init__(self, team1 : Team, team2 : Team):
+        self.team1 : Team = team1
+        self.team2 : Team = team2
 
         if self.team1 > self.team2:
             self.team1, self.team2 = self.team2, self.team1
         
-    def _getPredictions(self, inputObject):
-        return inputObject.predictions
-    
-    def _getTeamOneWinPctWith(self, inputObject):
-        predictions = self._getPredictions(inputObject)
+    def _getTeamOneWinPctWith(self, inputObject : Predictions) -> float:
+        predictions = inputObject.predictions
         id1 = self.team1.predId
         id2 = self.team2.predId
         return predictions[(id1, id2)]
 
-    def simulateWith(self, inputObject):
+    def getWinner(self, inputObject : Predictions) -> Team:
         team1wins = self._getTeamOneWinPctWith(inputObject)
         val = np.random.uniform(0, 1)
         if val < team1wins:
@@ -39,13 +36,13 @@ class Game():
         else:
             return self.team2
     
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.team1} vs. {self.team2}"
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"{self.team1} vs. {self.team2}"
         
-class predictionBracketEntry(BracketEntry):
+class PredictionBracketEntry(BracketEntry):
     # TODO: Update so that assign first round is happening once 
     # per instance of this class
     # -And each call of getWinnerBracket() returns a new instance of 
@@ -53,17 +50,17 @@ class predictionBracketEntry(BracketEntry):
     # -Therefore self.round and self.winnerbracket aren't needed 
     #   anymore
     # 
-    def __init__(self, index):
+    def __init__(self, index : int):
         super().__init__(index)
-        self.team1 = None
-        self.team2 = None
-        self._game = None
+        self.team1 : Team = None
+        self.team2 : Team = None
+        self._game : Game = None
     
-    def getWinner(self, predictionsObject):
-        self.winner = self.game.simulateWith(predictionsObject)
+    def getWinner(self, predictionsObject : Predictions) -> Team:
+        self.winner = self.game.getWinner(predictionsObject)
         return self.winner
 
-    def addTeam(self, team):
+    def addTeam(self, team : Team):
         if self.team1 is None:
             self.team1 = team
         elif self.team2 is None:
@@ -76,51 +73,53 @@ class predictionBracketEntry(BracketEntry):
             print("Woops, no more teams can be added to this game!")
     
     @property
-    def game(self):
-        if self._game is not None:
+    def game(self) -> Game:
+        if self._game:
             return self._game
-        elif self.team1 is not None and self.team2 is not None:
+        elif self.team1 and self.team2:
             self._game = Game(self.team1, self.team2)
             return self._game
         else:
             return
             
     @game.setter
-    def game(self):
+    def game(self) -> None:
         print("The BracketEntry's game property cannot be reset! Please add teams to entry to instantiate a game!")
         return
 
 class predictionBracket(Bracket):
-    def __init__(self, inputObject, teams = None, size = 64):
+    def __init__(self, inputObject : Predictions, teams : Teams = None, size : int = 64):
         super().__init__(size = size)
+        self.teams : Teams = teams
+        self.gameBracket : list[PredictionBracketEntry] = [None] * size # Ordered list of bracketEntries
+        self.inputObject : Predictions = inputObject
         
-        self.teams = teams
-        # Game bracket, predictionObject
-        self.gameBracket = [None] * size # Ordered list of bracketEntries
-        self.inputObject = inputObject
-        # Assign first round
-        self.assignFirstRound()
+        self._assignFirstRound()
     
-    def assignFirstRound(self):
-        self.assignByTeamList()
-        
-    def assignByTeamList(self):
-        for num, i in enumerate(range(32, 64)):
-            bracketEntry = predictionBracketEntry(i)
-            team1 = self.teams.teams[2 * num]
-            team2 = self.teams.teams[2 * num + 1]
+    def _assignFirstRound(self):
+        for num, i in enumerate(range(self.size // 2, self.size)):
+            bracketEntry = PredictionBracketEntry(index = i)
+            """
+            Proper ordering of teams in bracket structure is ensured if
+              Teams instantiated properly - see TeamImporter in teams module
+              and its specific sub-classes for more information
+            """
+            team1 : Team = self.teams.teams[2 * num]
+            team2 : Team = self.teams.teams[2 * num + 1]
             bracketEntry.addTeam(team1)
             bracketEntry.addTeam(team2)
-            self.gameBracket[i] = bracketEntry
+            self.gameBracket[i] : PredictionBracketEntry = bracketEntry
     
     @property
-    def round(self):
+    def round(self) -> int:
         """
-        Maintains state indicating which round is currently being processed
-        -Gets first non-null value at start of each round, which is last-processed round
-            -Which basically gives number of games yet to be processed
-            -64 / Games-to-Be-processed incerases linearly with each round so can use
-                -To get the round number
+        Maintains state indicating which round (indexing from 1) is currently 
+        being processed
+            - Remember self.gameBracket is filled from back to front of array
+                - This means at start of first round, first non-null value is index 32
+                    - So round returned will be "1"
+                - In second round, first non-null value is index 16
+                    - So round returned will be "2"
         """
         ctr = 0
         for num, i in enumerate(self.gameBracket):
@@ -162,7 +161,7 @@ class predictionBracket(Bracket):
     
     def _insertBracketEntry(self, index):
         if self.gameBracket[index] is None:
-            self.gameBracket[index] = predictionBracketEntry(index)
+            self.gameBracket[index] = PredictionBracketEntry(index)
     
     def getWinnerBracket(self, reset = False):
         while self.winnerBracket[1] is None:

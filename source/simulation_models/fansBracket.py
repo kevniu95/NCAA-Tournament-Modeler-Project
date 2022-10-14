@@ -30,9 +30,6 @@ class backwardBracketEntry(BracketEntry):
     def getWinner(self) -> Team:
         currVal = 0
         i = 0
-        # if self.sorted is None or self.sorted == False:
-        #     self.teamList.sort(key = lambda x : x.pickPct[self.rd], reverse= True)
-        #     self.sorted = True
         val = np.random.uniform(0, 1)
         retries = 0
         while val > currVal:
@@ -81,7 +78,7 @@ class fansBracket(Bracket):
                 teamObject = self.teams.nameTeamDict[teamName]
                 teamObject.setPick(round = i, pct = teamPct)
     
-    def getWinnerBracket(self):
+    def getWinnerBracket(self) -> np.ndarray:
         """
         This is the function that 'simulates' the tournament
         """

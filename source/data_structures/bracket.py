@@ -39,6 +39,9 @@ class Bracket():
         
     @abstractmethod
     def getWinnerBracket(self) -> list[int]:
+        """
+        This is the function that 'simulates' the tournament
+        """
         pass
     
     

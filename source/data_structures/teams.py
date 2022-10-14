@@ -22,16 +22,25 @@ class Team():
         self.name : str = name
         self.seed : int = int(seed)
         self.predId : int = None # Initialized in Teams class
+
+        """
+        Exists to assist with creating simulated bracket from Fan Picks
+        (ESPN Who Picked Whom data)
+        """
         self.pickPct : Dict[int, int] = dict(zip(range(5), [None] * 5))
     
-    def setPick(self, round, pct):
+    def setPick(self, round : int, pct : str):
+        """
+        Updates pickPct dictionary with input information
+            -i.e., pickPct[round] = float(pct)
+        """
+        if not isinstance(pct, str):
+            raise ValueError("Please ensure that the percentage passed is a string at first!")
         if isinstance(pct, str) and '.' in pct and '%' in pct:
             self.pickPct[round] =  float(pct.strip('%'))/100
         elif isinstance(pct, str):
             print("Unable to set pick percentage for this team - unworkable string format")
-        else:
-            self.pickPct[round] = pct
-    
+        
     def __str__(self):
         return f"{self.seed} {self.name} {self.predId}"
 
