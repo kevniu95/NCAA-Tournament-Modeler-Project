@@ -153,8 +153,17 @@ class Simulation():
         pass
     
 if __name__ == "__main__":
-    a = Simulation()
+    generator = KagglePredictionsGenerator('../data/kaggle_predictions/xgb_preds2022.csv')
+    predictions = Predictions(generator)
+
+    teams = Teams()
+    teams.setPredIds(file = '../data/MTeams_.csv')
+    testBracket = PredictionBracket(inputObject = predictions, teams = teams, size = 64)
+    
+
+    a = Simulation(predBracket = testBracket)
     a.runSimulation()
+    
     # print(a.myBracket.winnerBracket)
     # print(a.fanPool)
     # print(a.score)
