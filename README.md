@@ -8,23 +8,24 @@ The purpose of this project is to help basketball fans "test" their brackets by 
 
 Put another way, this is not so much an exercise in forecasting or estimation - even the most casual fan can get their hands on a set of reasonable projections fairly easily (see [FiveThirtyEight](https://projects.fivethirtyeight.com/2021-march-madness-predictions/)). Instead, this is more of an exercise in arbitrage. If we trust some expert-generated model as our source of truth, can we still identify any discrepancies with the general public's picks and take advantage?
 
-**II. Modules Description**
-1. Crowd Simulator – This takes as input, ESPN’s [Who Picked Whom](https://fantasy.espn.com/tournament-challenge-bracket/2022/en/whopickedwhom) numbers that list how many people pick each team to move to the next round. The idea is to work backwards from this aggregated view to realistic simulations of individual entries. This provides the user a reasonable pool to compare their own bracket against.
-	- KNOW: Percentage of teams picked to move to next round by ESPN fans
-	- DO: Simulation of a single ESPN bracket entry
+**II. Overview of Repositories**
 
-2. “True” Model – After simulating a competitor pool, we still need to be able to score a user's bracket entry against these competitors. To do this, we take a set of predictions to be our source of truth. This "source of truth model" will have, for each possible game in the tournament, have probability associated with team A beating team B.
-	- KNOW: 63 x 64 “true” game probabilities (i.e. predictions)
-	- DO: Simulation of NCAA tournament 
-	- **Existing Python Modules: trueModel.py, trueModelTest.py**
+0. */app* and */AWS_setup*
 
-3. My Bracket – This will make it easy to upload a user's own bracket entry from, say, ESPN
-	- KNOW: Some web page or other input with bracket input
-	- DO: Produce a data structure representing the user’s NCAA tournament bracket selection
-	- **Existing Python Modules: bracketImporter.py**
+- Help stand up rudimentary web app hosted on AWS EC2 instance. Still in progress at the moment...
 
-4. Bracket Scorer- this will score filled-out bracket predictions (be they simulated or input by the user) and score them against the “True” model simulations that will be run
-	-KNOW: Underlying “true” model, some filled-out bracket
-	-DO: Score the filled-out bracket against the occurrence represented by a simulated instance of the “true” model
-  
- 5. Driver - Given a user's bracket entry, generates pool of competing crowd entries. Also simulates the "true" results many times so user has a sense of how their bracket fares against the crowd
+1. */source/data*
+- Contains raw Kaggle data used for predictions and bracket set-up, as well as intermediary datasets
+
+2. */source/data_structures*
+- Contains core, custom data structures that carry out project. Abstract BracketEntry and Bracket classes in module bracket.py are templates underlying project.
+
+3. */source/simulation_models*
+- Contains specific instantiations of abstract Bracket class defined above
+	- 1. **userBracket** creates a scorable, Bracket structure based on bracket entry (filled out from ESPN competition)
+	- 2. **fansBracket** uses ESPN's Who Picked Whom to create realistic simulations of competing entries in an ESPN bracket pool competition
+	- 3. **predictionBracket** uses game-by-game predictions generated from ML model to simulate realistic outcomes of the NCAA tournament
+- **simulation.py** is final program called by Flask that allows user to test their bracket entry against *n* simulated competitor entries and a realistic outcome supplied by ML model.
+
+4. */source/prediction_models*
+- Contains actual ML task of choosing classification model to predict winners of each NCAA tournament game
