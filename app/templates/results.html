@@ -11,6 +11,27 @@ University of Chicago
   <body>
 		<!-- Headings -->
 		<h2>Here's how your bracket entry performed...</h2>
-        <p>Out of {{ simRes.poolSize}} competitors in your pool, you scored in the top {{ simRes.percentile }}% with a score of {{ simRes.score_str }} in this simulation!</p>
+		<p>Your bracket entry scored {{ simRes.score_str }} points, outperforming {{ simRes.percentile }}% of competitors in your pool!</p>
 	</body>
+
+	<table id="data" class="table table-striped">
+		<thead>
+		  <tr>
+			<th>Bracket Entry</th>
+			<th>Score</th>
+			<th>Selected Winner</th>
+			<th></th>
+			</tr>
+		</thead>
+		<tbody>
+		  {% for team in teams %}
+			<tr>
+			  <td>{{ team['entryName'] }}</td>
+			  <td>{{ team['score'] }}</td>
+			  <td> {{ team['winner'] }} </td>
+			  <td> <img src = "{{ team['winnerLink'] }}" height = 30 width = 30> </td> 
+			  </tr>
+		  {% endfor %}
+		</tbody>
+	  </table>
 </html> 

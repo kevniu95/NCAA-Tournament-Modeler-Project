@@ -1,5 +1,7 @@
 import requests
+import os
 import re
+import csv
 from bs4 import BeautifulSoup
 from abc import ABC, abstractmethod
 from typing import Dict, Any
@@ -8,7 +10,7 @@ class Team():
     """
     Class representing NCAA Tournament Team
     """
-    def __init__(self, bracketId : int, name : str, seed : int):
+    def __init__(self, bracketId : int, name : str, seed : int, **kwargs):
         """
         bracketId : int -  indicates the id of the team on the bracket
                             -identifies teams within context of specific bracket 
@@ -22,6 +24,7 @@ class Team():
         self.name : str = name
         self.seed : int = int(seed)
         self.predId : int = None # Initialized in Teams class
+        self.imgLink : str = kwargs['imgLink']
 
         """
         Exists to assist with creating simulated bracket from Fan Picks
@@ -89,8 +92,19 @@ class SpecificEntryImporter(TeamImporter):
     def __init__(self, url = "https://fantasy.espn.com/tournament-challenge-bracket/2022/en/entry?entryID=53350427"):
         super().__init__()
         self.url : str = url
+        self.teamImages = self._readTeamImages()
         self._initiateTeams()
-    
+        
+    def _readTeamImages(self):
+        dir_path = os.path.dirname(os.path.realpath(__file__))
+        with open(f'{dir_path}/../data/imageLinks.csv', newline='') as csvfile:
+            linkReader = csv.reader(csvfile, delimiter=',')
+            next(linkReader, None) 
+            imageList = []
+            for row in linkReader:
+                imageList.append(row[1])
+        return imageList
+
     def _initiateTeams(self):
         """
         Updates self.teams to hold Team objects
@@ -109,7 +123,8 @@ class SpecificEntryImporter(TeamImporter):
             team_tag = slot.find_all('span', class_ = 'name')
             name = team_tag[0].text
             # Create Team
-            self.teams[teamCtr] = Team(bracketId = teamCtr, name = name, seed = int(seed))
+            imgLink = self.teamImages[teamCtr]
+            self.teams[teamCtr] = Team(bracketId = teamCtr, name = name, seed = int(seed), imgLink = imgLink)
             teamCtr += 1
 
 class TeamImporterBracketologyESPN(TeamImporter):
@@ -136,7 +151,8 @@ class TeamImporterBracketologyESPN(TeamImporter):
             bracketItems = bracketContainer.find_all('li', class_ = 'bracket__item')
             for bracketItem in bracketItems:
                 seed, teamName = self.readBracketItem(bracketItem)
-                self.teams[teamCtr] = Team(teamCtr, teamName, seed)
+                imgLink = self.teamImages[teamCtr]
+                self.teams[teamCtr] = Team(teamCtr, teamName, seed, imgLink)
                 teamCtr += 1
     
     def readBracketItem(self, bracketItem):
@@ -228,7 +244,7 @@ class Teams():
         assert sorted(self._predIdDict.keys()) == sorted(self.nameTeamDict.keys())
 
 if __name__ == "__main__":
-    testImport = TeamImporterBracketologyESPN()
+    # testImport = TeamImporterBracketologyESPN()
     entryImporter = SpecificEntryImporter()
     
     # for i in range(len(testImport.teams)):
@@ -240,4 +256,5 @@ if __name__ == "__main__":
     teams.setPredIds(file = '../data/MTeams_.csv')
     for team in teams.teams:
         print(team)
-    
+        print(team.imgLink)
+        

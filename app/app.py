@@ -9,6 +9,7 @@ import uuid
 import os
 # print(sys.path)
 sys.path.insert(0, '/home/ec2-user/ncaa/source/simulation_models/')
+sys.path.insert(0, '../source/simulation_models/')
 # print(sys.path)
 
 
@@ -29,6 +30,7 @@ def results():
     link = request.form['espnLink']
     simRes = Simulation(myBracketUrl = link)
     simRes.runSimulation()
-    return render_template('results.html', simRes =simRes)
+    teams = simRes.getNeighborTeams(n = 25)
+    return render_template('results.html', simRes =simRes, teams = teams)
 
-app.run(host='0.0.0.0', debug=True)
+app.run(host='127.0.0.1', debug=True)
