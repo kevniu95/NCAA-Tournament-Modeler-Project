@@ -2,11 +2,15 @@
 
 **I. Project Description**
 
-The purpose of this project is to help basketball fans "test" their brackets by (1) simulating the NCAA tournament and (2) comparing users' brackets against simulated competitors’ data. This should help fans determine what brackets might score well after accounting for:
-1.	What models say the “true” probabilities are for all possible games in the tournament.
-2.	What the general public has chosen, and 
+The purpose of this project is to help basketball fans (1) score their brackets against realistic outcomes of the NCAA tournament and (2) assess how their scores would place against a realistic pool of simulated competitors. This should help fans determine if their bracket entries might score well after accounting for:
+1. The “true” best-guess probabilities for all possible games in the tournament 
+	- (As determined by a model that might score well in the March Madness Kaggle [competition](https://www.kaggle.com/competitions/mens-march-mania-2022/data/) for instance)
+2. How the general public has filled out their brackets
+	- [ESPN Who Picked Whom](https://fantasy.espn.com/tournament-challenge-bracket/2022/en/whopickedwhom)
 
-Put another way, this is not so much an exercise in forecasting or estimation - even the most casual fan can get their hands on a set of reasonable projections fairly easily (see [FiveThirtyEight](https://projects.fivethirtyeight.com/2021-march-madness-predictions/)). Instead, this is more of an exercise in arbitrage. If we trust some expert-generated model as our source of truth, can we still identify any discrepancies with the general public's picks and take advantage?
+Put another way, this is not just a pure machine learning classification exercise, because winning your bracket pool is not a pure classification exercise. Bracket pool competitions feature a game theoretic component as well. 
+
+Gonzaga may be the most objectively likely team to win the tournament, but if *everyone else* in the pool picks Gonzaga, they may not be the best team to pick for the purposes of winning the pool. By ranking your bracket entry against a realistic field of competitors, this project aims to take the first step in translating a good game-by-game model into a real tool you can use to win your bracket pool.
 
 **II. Overview of Repositories**
 
