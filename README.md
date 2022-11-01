@@ -8,9 +8,9 @@ The purpose of this project is to help basketball fans (1) score their brackets 
 2. How the general public has filled out their brackets
 	- [ESPN Who Picked Whom](https://fantasy.espn.com/tournament-challenge-bracket/2022/en/whopickedwhom)
 
-Put another way, this is not just a pure machine learning classification exercise, because winning your bracket pool is not a pure classification exercise. Bracket pool competitions feature a game theoretic component as well. 
+Put another way, this is not just a standard machine learning exercise. Winning your bracket pool requires more than just developing and extending a good classification model because there is a significant game theoretic component as well. 
 
-Gonzaga may be the most objectively likely team to win the tournament, but if *everyone else* in the pool picks Gonzaga, they may not be the best team to pick for the purposes of winning the pool. By ranking your bracket entry against a realistic field of competitors, this project aims to take the first step in translating a good game-by-game model into a real tool you can use to win your bracket pool.
+Gonzaga may objectively be the most likely team to win the tournament. But if *everyone else* picks them, your odds of winning the pool may be better if you select another winner. By ranking your bracket entry against a realistic field of competitors, this project takes the first step in translating a good game-by-game machine learning model into a real tool you can use to win your bracket pool.
 
 **II. Overview of Repositories**
 
