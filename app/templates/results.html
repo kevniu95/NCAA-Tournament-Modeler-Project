@@ -1,8 +1,3 @@
-<!--
-annotate.html - Direct upload to Amazon S3 using signed POST request
-Copyright (C) 2011-2018 Vas Vasiliadis <vas@uchicago.edu>
-University of Chicago
--->
 <!DOCTYPE html>
 <html>
 	<head>	
@@ -10,26 +5,27 @@ University of Chicago
 	</head>
   <body>
 		<!-- Headings -->
-		<h2>Here's how your bracket entry performed...</h2>
-		<p>Your bracket entry scored {{ simRes.score_str }} points, outperforming {{ simRes.percentile }}% of competitors in your pool!</p>
+		<h2>Your bracket entry scored {{ results[100]['score'] }} points in this simulation.</h2>
+		<p>Here's how that stacks up...</p>
 	</body>
 
 	<table id="data" class="table table-striped">
 		<thead>
 		  <tr>
-			<th>Bracket Entry</th>
-			<th>Score</th>
-			<th>Selected Winner</th>
+			<th>Number of competitors</th>
+			<th>Histogram</th>
+			<th>Percentile</th>
+			<th>Link</th>
 			<th></th>
 			</tr>
 		</thead>
 		<tbody>
-		  {% for team in teams %}
+		  {% for k, v in results.items() %}
 			<tr>
-			  <td>{{ team['entryName'] }}</td>
-			  <td>{{ team['score'] }}</td>
-			  <td> {{ team['winner'] }} </td>
-			  <td> <img src = "{{ team['winnerLink'] }}" height = 30 width = 30> </td> 
+			  <td align='right'>{{ k }}</td>
+			  <td> <img src = "data:image/png;base64, {{ v['fanHist'].decode('utf-8') }}" height = 250 width = 250> </td> 
+			  <td align='right'> {{ v['percentile']}}% </td>
+			  <td></td>
 			  </tr>
 		  {% endfor %}
 		</tbody>
