@@ -36,7 +36,24 @@ class ScoringNeighbors():
         winnerLinks = [self.teams[int(i)].imgLink for i in self.mat[:, 1]]
         fields = ['entryName', 'score', 'winner', 'winnerLink']
         return [dict(zip(fields,i)) for i in list(zip(entryNames, finalScores, winners, winnerLinks))]
-        
+
+# class ScoreVisualizer():
+#     def __init__(self):
+
+
+class VisualTable():
+    def __init__(self):
+        pass
+
+class VisualTableEntry():
+    def __init__(self):
+        self.s_team
+        self.a_team
+        self.potential_points
+        self.scored_points
+        self.correct
+
+
 class Simulation():
     def __init__(self, 
                     bracketTeams : Teams = None, 
@@ -124,7 +141,7 @@ class Simulation():
         myScoreArr, fanScores = self._rankScore(self.fanPool)
         
         score = myScoreArr[:, -1][0]
-        outPerformed = (self.fanPool[:, -1] < score).sum()
+        outPerformed = (fanScores[:, -1] < score).sum()
         percentile = str(round(100 * (outPerformed / self.poolSize), 1))
         print(f"Your bracket entry outperformed {outPerformed} simulated fan entries, better than {percentile}% of entries")
 
@@ -134,9 +151,10 @@ class Simulation():
         return str(score)[:-2], percentile, hist, neighbors
     
     def _rankScore(self, fanPool : np.ndarray):
-        myScore = self._score(self.myBracket.winnerBracket, self.predBracket.winnerBracket)
-        fanScores = self._score(fanPool, self.predBracket.winnerBracket)
+        myScore, my_score_vis = self._score(self.myBracket.winnerBracket, self.predBracket.winnerBracket)
+        fanScores, _ = self._score(fanPool, self.predBracket.winnerBracket)
         fanScores = fanScores[fanScores[:, -1].argsort()][::-1][:fanScores.shape[0]]
+        print(my_score_vis)
         return myScore, fanScores
 
     def _score(self, entry : np.ndarray, actual : np.ndarray) -> np.ndarray:
@@ -151,9 +169,10 @@ class Simulation():
                 represents score of bracketEntry represented in row i
         """        
         scoringFilter : np.ndarray = self._createScoringFilter()
-        
+        scoringUser = False
         # Re-shape both entry andn actual to (1, 64) np.ndarrays
         if np.ndim(entry) == 1:
+            scoringUser = True
             entry = entry.reshape((-1, entry.shape[0]))
         
         # Create 1 x 64 boolean matrix, comparing entry to actual
@@ -163,9 +182,17 @@ class Simulation():
         # Matrix multiplication to get score
         scoreMat = np.matmul(boolMat, scoringFilter.reshape((scoringFilter.shape[0], -1)))
         
+        # If it is the user array (not fanPool), will return extra
+        #  np.ndarray to help with visualization of results
+        vis_arr = None
+        if scoringUser:
+            new_shape = (entry.shape[1], entry.shape[0])
+            vis_arr = np.hstack((entry.reshape(new_shape), actual[None, :].reshape(new_shape), 
+                                (boolMat + [0] * boolMat.shape[0]).reshape(new_shape)))
+            
         # Append score to end of entry ndarray and return
         # To preserve individual brackets of fan pool
-        return np.hstack((entry, scoreMat))
+        return np.hstack((entry, scoreMat)), vis_arr
 
     def _createScoringFilter(self) -> np.ndarray:
         rounds = int(np.log2(self.size))
