@@ -42,17 +42,56 @@ class ScoringNeighbors():
 
 
 class VisualTable():
-    def __init__(self):
-        pass
+    def __init__(self, myScoreVis : np.ndarray, teams : list[Team]):
+        """
+        myScoreVis is a numpy.ndarray with three columns
+            - First column is user selection
+            - Second column is 'actual' winner in simulation
+            - Third column is boolean indicating correctness
+        """
+        self.teams = teams
+        self.vis_arr : list[VisualTableEntry] = self._process_score_arr(myScoreVis)
+        
+    def _process_score_arr(self, myScoreVis):
+        vis_arr = []
+        for num, i in enumerate(myScoreVis):
+            if num > 0:
+                pts = 320 / (2**(int(np.log2(num) // 1)))
+                userSel = self.teams[i[0]]
+                corrSel = self.teams[i[1]]
+                vis_arr.append(VisualTableEntry(userSel, corrSel, pts))
+        return vis_arr
+    
+    def return_vis_arr(self):
+        return self.vis_arr
 
+            
 class VisualTableEntry():
-    def __init__(self):
-        self.s_team
-        self.a_team
-        self.potential_points
-        self.scored_points
-        self.correct
+    roundLabels = dict(zip([320, 160, 80, 40, 20, 10], ['NCG', 'F4', 'E8', 'S16', 'R32', 'R64']))
+    def __init__(self, userTeam : Team, correctTeam : Team, pts : int):
+        self.u_team = userTeam
+        self.c_team = correctTeam
+        self.pts = pts
+        self.correct = self.u_team.bracketId == self.c_team.bracketId
+        self.score = int(self.correct) * self.pts
+        self.label = self.roundLabels[pts]
+    
+    def getResults(self):
+        data = {'uTeam' : self.u_team.name, 
+                'uTeamImg' : self.u_team.imgLink,
+                'cTeam' : self.c_team.name,
+                'cTeamImg' : self.c_team.imgLink,
+                'pts' : self.pts,
+                'correct' : self.correct,
+                'score' : self.score,
+                'label' : self.label}
+        return data
 
+    def __str__(self):
+        return (f"{self.label}: {self.pts} points\nChose: {self.u_team.name}\nWinner: {self.c_team.name}\nStatus:{self.correct}")
+
+    def __repr__(self):
+        return (f"{self.label}: {self.pts} points\nChose: {self.u_team.name}\nWinner: {self.c_team.name}\nStatus:{self.correct}")
 
 class Simulation():
     def __init__(self, 
@@ -138,7 +177,7 @@ class Simulation():
         - histogram of user performance vs fanPool
         - neighbors around user
         """
-        myScoreArr, fanScores = self._rankScore(self.fanPool)
+        myScoreArr, myScoreVis, fanScores = self._rankScore(self.fanPool)
         
         score = myScoreArr[:, -1][0]
         outPerformed = (fanScores[:, -1] < score).sum()
@@ -148,14 +187,14 @@ class Simulation():
         histNums = self._collapseFanScores(fanScores)
         hist = self._plotHistogram(histNums, score)
         neighbors = self._getNeighborTeams(fanScores, myScoreArr, n= 24)
-        return str(score)[:-2], percentile, hist, neighbors
+        scoreVis = VisualTable(myScoreVis, self.teams.teams).return_vis_arr()
+        return str(score)[:-2], percentile, hist, neighbors, scoreVis
     
     def _rankScore(self, fanPool : np.ndarray):
         myScore, my_score_vis = self._score(self.myBracket.winnerBracket, self.predBracket.winnerBracket)
         fanScores, _ = self._score(fanPool, self.predBracket.winnerBracket)
         fanScores = fanScores[fanScores[:, -1].argsort()][::-1][:fanScores.shape[0]]
-        print(my_score_vis)
-        return myScore, fanScores
+        return myScore, my_score_vis, fanScores
 
     def _score(self, entry : np.ndarray, actual : np.ndarray) -> np.ndarray:
         """
