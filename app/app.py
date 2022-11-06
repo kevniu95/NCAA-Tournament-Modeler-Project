@@ -18,39 +18,9 @@ from flask import (Flask, abort, flash, redirect, render_template,
   request, session, url_for)
 
 from simulation import Simulation
-import base64
-from io import BytesIO
-import matplotlib.pyplot as plt
-from matplotlib.figure import Figure
-import random
 
 app = Flask(__name__)
 
-def plotHistogram(fanHist : dict[int : int], score : int):
-    ans = []
-    for k, v in fanHist.items():
-        ans += [k] * v
-
-    fig = Figure()
-
-    axis = fig.add_subplot(1, 1, 1)
-    axis.hist(ans, bins = 20)
-    axis.axvline(score, color='k', linestyle='dashed', linewidth=1)
-
-    buf = BytesIO()
-    fig.savefig(buf, format="png")
-    data = base64.b64encode(buf.getbuffer())
-    return data
-
-# def plotHistogram(fanHist : dict[int : int], score : int):
-#     plt.hist(ans, bins = 20)
-#     plt.axvline(score, color='k', linestyle='dashed', linewidth=1)
-#     buf = BytesIO()
-#     plt.savefig(buf, format="png")
-#     # Embed the result in the html output.
-#     data = base64.b64encode(buf.getbuffer()).decode("ascii")
-#     # print(data)
-#     return data
 
 @app.route("/", methods = ['GET'])
 def simulate():
@@ -63,16 +33,13 @@ def results():
     link = request.form['espnLink']
     sim = Simulation(myBracketUrl = link)
     first = True
-    sizes = [100, 500, 1000, 10000]
+    sizes = [100, 1000, 10000, 25000]
     results = {}
     for i in sizes:
         simRes = sim.runSimulation(poolSize = i, resetPreds = first)
         if first:
-            first = False
-        hist = plotHistogram(simRes[3], int(simRes[1]))
-        
-        results[i] = dict(zip(['pred_arr', 'score', 'percentile', 'fanHist'], ([i for i in simRes[:-1]] + [hist])))
-        print(results)
+            first = False        
+        results[i] = dict(zip(['pred_arr', 'score', 'percentile', 'fanHist'], simRes))
     print(time.time() - start)
     return render_template('results.html', results = results)
 

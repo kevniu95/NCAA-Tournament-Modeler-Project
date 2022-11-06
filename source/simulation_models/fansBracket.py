@@ -42,8 +42,8 @@ class BackwardBracketEntry(BracketEntry):
                 i = 0
                 retries += 1
             i += 1
-        if retries > 0:
-            print(f"A bracket entry saw {retries} retries")
+        # if retries > 0:
+            # print(f"A bracket entry saw {retries} retries")
         self.winner = self.teamList[i - 1]
         return self.winner
 

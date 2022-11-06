@@ -162,14 +162,15 @@ class PredictionBracket(Bracket):
             self.gameBracket[index] = PredictionBracketEntry(index)
     
     def getWinnerBracket(self, reset = False) -> np.ndarray:
-        self.winnerBracket[0] = -1
-        while self.winnerBracket[1] is None:
-            winnerBracket = self._simulateRound()
-        self.winnerBracket = np.array(self.winnerBracket)
         if reset:
             print("I am resetting")
             self.bracketReset()
-        return winnerBracket
+        
+        self.winnerBracket[0] = -1
+        while self.winnerBracket[1] is None:
+            self.winnerBracket = self._simulateRound()
+        self.winnerBracket = np.array(self.winnerBracket)
+        return self.winnerBracket
     
     def bracketReset(self):
         self.gameBracket = [None] * self.size
@@ -194,7 +195,7 @@ if __name__ == "__main__":
     # [print(num, i) for num, i in enumerate(testBracket.winnerBracket)]
     
     # # D. Simulate Tournament
-    print(testBracket.getWinnerBracket(reset = False))
+    print(testBracket.getWinnerBracket(reset = True))
     # [print(num, i) for num, i in enumerate(testBracket.gameBracket)]
     # [print(num, teams.teams[i].name) if num > 0 else print("") for num, i in enumerate(testBracket.winnerBracket)]
     
