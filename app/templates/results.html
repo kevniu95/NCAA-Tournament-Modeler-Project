@@ -6,29 +6,73 @@
   <body>
 		<!-- Headings -->
 		<h2>Your bracket entry scored {{ results[100]['score'] }} points in this simulation.</h2>
-		<p>Here's how that stacks up...</p>
+		<h3>A. Here's how that stacks up against your simulated competitors...</h3>
 	</body>
 
-	<table id="data" class="table table-striped">
+	<table id="vsPool" class="table table-striped">
 		<thead>
 		  <tr>
 			<th>Number of competitors</th>
 			<th>Histogram</th>
 			<th>Percentile</th>
-			<th>Specific Results</th>
-			<th>Aggregated Results</th>
+			<!-- <th>Specific Results</th> -->
+			<!-- <th>Aggregated Results</th> -->
 			</tr>
 		</thead>
 		<tbody>
 		  {% for k, v in results.items() %}
 			<tr>
 			  <td align='right'>{{ k }}</td>
-			  <td> <img src = "data:image/png;base64, {{ v['fanHist'].decode('utf-8') }}" height = 250 width = 250> </td> 
-			  <td align='right'> {{ v['percentile']}}% </td>
-			  <td></td>
-			  <td></td>
+			  <td> <img src = "data:image/png;base64, {{ v['fanHist'].decode('utf-8') }}" height = 150 width = 250> </td> 
+			  <td align='right'> {{ v['percentile']}}%</td>
+			  <!-- <td {{ neighbors }} -->
+			  <!-- <td><a href={{ url_for ('specific_results', competitors=k, neighbors = neighbors)}}>View specific results </a></td> -->
+			  <!-- <td></td> -->
 			  </tr>
 		  {% endfor %}
 		</tbody>
 	  </table>
+	<body>
+		<!-- Headings -->
+		<h3>B. Here's your performance against the simulated bracket...</h3>
+	</body>
+	<table id="vsSim" class="table table-striped">
+		<thead>
+		  <tr>
+			<th>Round</th>
+			<th>Simulation Winner</th>
+			<th>Selected Winner</th>
+			<th>Points Scored</th>
+			<th>Points Possible</th>
+			</tr>
+		</thead>
+		<tbody>
+		  {% for i in vis_list %}
+			<tr>
+			  <td>{{ i.label }}</td>
+			  <td><img src = "{{ i.u_team.imgLink }}" height = 30 width = 30> {{ i.u_team.name }}</td>
+			  <td><img src = "{{ i.c_team.imgLink }}" height = 30 width = 30> {{ i.c_team.name }}</td>
+			  <td>{{ i.printScore }}</td>
+			  </tr>
+		  {% endfor %}
+		</tbody>
+	  </table>
+
+	<script>
+	var t = document.getElementById('vsSim');
+	if(t) {
+		Array.from(t.rows).forEach((tr, rowIdx) => {
+			Array.from(tr.cells).forEach((cell, cellIdx) => {
+				if (cellIdx == 3 && rowIdx > 0){
+					if (cell.innerText.substring(1, 2) != '0'){
+						tr.style.backgroundColor = 'RGBA(241, 157, 157, 0.5)'
+					}
+					else{
+						tr.style.backgroundColor = 'RGBA(111, 245, 111, 0.5)'
+					}
+				}
+			});
+		});
+	}
+	</script>
 </html> 

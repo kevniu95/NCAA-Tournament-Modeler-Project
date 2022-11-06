@@ -75,6 +75,7 @@ class VisualTableEntry():
         self.correct = self.u_team.bracketId == self.c_team.bracketId
         self.score = int(self.correct) * self.pts
         self.label = self.roundLabels[pts]
+        self.printScore = str(self.score)[:-2] + ' / ' + str(self.pts)[:-2] 
     
     def getResults(self):
         data = {'uTeam' : self.u_team.name, 

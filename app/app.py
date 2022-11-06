@@ -36,11 +36,17 @@ def results():
     sizes = [100, 1000, 10000, 25000]
     results = {}
     for i in sizes:
-        simRes = sim.runSimulation(poolSize = i, resetPreds = first)
+        predBracket = sim.runSimulation(poolSize = i, resetPreds = first)
+        res = sim.scoreSimulation()
         if first:
             first = False        
-        results[i] = dict(zip(['pred_arr', 'score', 'percentile', 'fanHist'], simRes))
-    print(time.time() - start)
-    return render_template('results.html', results = results)
+        results[i] = dict(zip(['pred_arr', 'score', 'percentile', 'fanHist', 'neighbors','visualization'], [predBracket] + list(res)))
+    vis_list = res[-1]
+    return render_template('results.html', results = results, vis_list = vis_list)
+
+@app.route('/specific_results/<competitors>/<neighbors>')
+def specific_results(competitors, neighbors):
+    print(neighbors)
+    return f"You have {competitors} total competitors!"
 
 app.run(host='127.0.0.1', debug=True)
