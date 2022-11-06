@@ -40,18 +40,17 @@
 		<thead>
 		  <tr>
 			<th>Round</th>
-			<th>Simulation Winner</th>
-			<th>Selected Winner</th>
+			<th>Simulated Winner</th>
+			<th>Your Selected Winner</th>
 			<th>Points Scored</th>
-			<th>Points Possible</th>
 			</tr>
 		</thead>
 		<tbody>
 		  {% for i in vis_list %}
 			<tr>
 			  <td>{{ i.label }}</td>
-			  <td><img src = "{{ i.u_team.imgLink }}" height = 30 width = 30> {{ i.u_team.name }}</td>
 			  <td><img src = "{{ i.c_team.imgLink }}" height = 30 width = 30> {{ i.c_team.name }}</td>
+			  <td><img src = "{{ i.u_team.imgLink }}" height = 30 width = 30> {{ i.u_team.name }}</td>
 			  <td>{{ i.printScore }}</td>
 			  </tr>
 		  {% endfor %}
