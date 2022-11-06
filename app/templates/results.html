@@ -15,8 +15,8 @@
 			<th>Number of competitors</th>
 			<th>Histogram</th>
 			<th>Percentile</th>
-			<th>Link</th>
-			<th></th>
+			<th>Specific Results</th>
+			<th>Aggregated Results</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -25,6 +25,7 @@
 			  <td align='right'>{{ k }}</td>
 			  <td> <img src = "data:image/png;base64, {{ v['fanHist'].decode('utf-8') }}" height = 250 width = 250> </td> 
 			  <td align='right'> {{ v['percentile']}}% </td>
+			  <td></td>
 			  <td></td>
 			  </tr>
 		  {% endfor %}

@@ -1,21 +1,15 @@
-from ast import Pass
 import sys
 sys.path.insert(0, '../source/data_structures/')
 sys.path.insert(0, '../data_structures/')
 
 import os
-import requests
-import re
 import numpy as np
-from bs4 import BeautifulSoup
 from predictionBracket import PredictionBracket
 from fansBracket import FansBracket
 from userBracket import UserBracket
-import time
 
 import base64
 from io import BytesIO
-import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
 
 from bracket import Bracket
@@ -34,7 +28,7 @@ class ScoringNeighbors():
         self.end = end
         self.teams = teams
 
-    def makeEntries(self):
+    def makeEntries(self) -> list[dict[str : str]]:
         mid = (self.start + self.end) // 2
         entryNames = [i for i in range(self.start, mid)] + ['User Bracket'] + [i for i in range(mid, self.end)]
         finalScores = self.mat[:, -1]
@@ -57,16 +51,12 @@ class Simulation():
         self.myBracket = self._initUser(myBracketUrl)
         
         self.size = bracketSize
-        # self.poolSize = None
         self.POINTS_PER_ROUND = 320
-
-        # self.fanPool : np.ndarray = None
-        # self.myScoreArr : np.ndarray = None
-        # self.score = None
-        # self.score_str = None
-        # self.outPerformed = None
-        # self.percentile = None
-    
+        
+        # These are set with each call to runSimulation() method
+        self.poolSize = None
+        self.fanPool : np.ndarray = None
+        
     def _initTeams(self, teams : Teams) -> Teams:
         if teams is None:
             # A. Import Teams
@@ -95,24 +85,21 @@ class Simulation():
     
     def runSimulation(self, poolSize : int, resetPreds : bool):
         """
-        For now, return score, percentile, 
+        Gets and saves winner bracket for 
+         - My Bracket
+         - Prediction Bracket
+         - Fan Brackets
+        
+        Sets poolSize and fanPool for this prediction as well
+
+        Returns Prediction Bracket
         """
         self.myBracket.getWinnerBracket()
         self.predBracket.getWinnerBracket(reset = resetPreds)
-        fanPool : np.ndarray = self._simulatePool(poolSize)
-        myScore, fanScores = self._rankScore(fanPool)
-        score, percentile = self._summarizeScore(myScore, fanScores, poolSize)
-        histNums = self._collapseFanScores(fanScores)
-        hist = self._plotHistogram(histNums, score)
-        return self.predBracket.winnerBracket, str(score)[:-2], percentile, hist
+        self.poolSize : int = poolSize
+        self.fanPool : np.ndarray = self._simulatePool(poolSize)
+        return self.predBracket.winnerBracket
     
-    def _collapseFanScores(self, fanScores : np.ndarray) -> dict[int : int]:
-        test = fanScores[:, -1] 
-        valDict = {}
-        for i in test:
-            valDict[i] = valDict.get(i, 0) + 1
-        return valDict
-
     def _simulatePool(self, poolSize : int) -> np.ndarray:
         """
         Creates realistic pool of "fan" competitors as simulated 
@@ -125,16 +112,32 @@ class Simulation():
         fanPool : np.ndarray = np.array(simulatedPool)
         return fanPool
     
-    def _createScoringFilter(self) -> np.ndarray:
-        rounds = int(np.log2(self.size))
-        scoringFilter = np.zeros(self.size)
-        for round in range(rounds, 0, -1):
-            start = 2 ** (round - 1)
-            end = 2 ** (round)
-            games = end - start
-            pointsPerGame = self.POINTS_PER_ROUND / games
-            scoringFilter[start:end] = pointsPerGame
-        return scoringFilter
+    def scoreSimulation(self):
+        """
+        To be called after runSimulation() function
+        -Returns:
+        - string rep of user score
+        - string rep of user score percentile
+        - histogram of user performance vs fanPool
+        - neighbors around user
+        """
+        myScoreArr, fanScores = self._rankScore(self.fanPool)
+        
+        score = myScoreArr[:, -1][0]
+        outPerformed = (self.fanPool[:, -1] < score).sum()
+        percentile = str(round(100 * (outPerformed / self.poolSize), 1))
+        print(f"Your bracket entry outperformed {outPerformed} simulated fan entries, better than {percentile}% of entries")
+
+        histNums = self._collapseFanScores(fanScores)
+        hist = self._plotHistogram(histNums, score)
+        neighbors = self._getNeighborTeams(fanScores, myScoreArr, n= 24)
+        return str(score)[:-2], percentile, hist, neighbors
+    
+    def _rankScore(self, fanPool : np.ndarray):
+        myScore = self._score(self.myBracket.winnerBracket, self.predBracket.winnerBracket)
+        fanScores = self._score(fanPool, self.predBracket.winnerBracket)
+        fanScores = fanScores[fanScores[:, -1].argsort()][::-1][:fanScores.shape[0]]
+        return myScore, fanScores
 
     def _score(self, entry : np.ndarray, actual : np.ndarray) -> np.ndarray:
         """
@@ -161,31 +164,42 @@ class Simulation():
         scoreMat = np.matmul(boolMat, scoringFilter.reshape((scoringFilter.shape[0], -1)))
         
         # Append score to end of entry ndarray and return
-        # Why? In case of fan pool, which is (1000 x 64),
-        #     want to preserve the individual brackets, not
-        #     just get the final scores 
+        # To preserve individual brackets of fan pool
         return np.hstack((entry, scoreMat))
 
-    def _rankScore(self, fanPool : np.ndarray):
-        myScore = self._score(self.myBracket.winnerBracket, self.predBracket.winnerBracket)
-        fanScores = self._score(fanPool, self.predBracket.winnerBracket)
-        fanScores = fanScores[fanScores[:, -1].argsort()][::-1][:fanScores.shape[0]]
-        return myScore, fanScores
-        
-    def _summarizeScore(self, myScore : np.ndarray, fanPool : np.ndarray, poolSize : int):
-        score = myScore[:, -1][0]
-        outPerformed = (fanPool[:, -1] < score).sum()
-        percentile = str(round(100 * (outPerformed / poolSize), 1))
-        print(f"Your bracket entry outperformed {outPerformed} simulated fan entries, better than {percentile}% of entries")
-        return score, percentile
+    def _createScoringFilter(self) -> np.ndarray:
+        rounds = int(np.log2(self.size))
+        scoringFilter = np.zeros(self.size)
+        for round in range(rounds, 0, -1):
+            start = 2 ** (round - 1)
+            end = 2 ** (round)
+            games = end - start
+            pointsPerGame = self.POINTS_PER_ROUND / games
+            scoringFilter[start:end] = pointsPerGame
+        return scoringFilter
+    
+    def _collapseFanScores(self, fanScores : np.ndarray) -> dict[int : int]:
+        """
+        Collapses fan scores into histogram-like dictionary
+        with unique scores and #of fans with those scores
+            e.g., {300 : # brackets w. 300 pts}
+        """
+        test = fanScores[:, -1] 
+        valDict = {}
+        for i in test:
+            valDict[i] = valDict.get(i, 0) + 1
+        return valDict
 
     def _plotHistogram(self, fanHist : dict[int : int], score : int):
+        """
+        Converts dictionary histogram into real matplotlib 
+        histogram, encoded for sending to web app
+        """
         ans = []
         for k, v in fanHist.items():
             ans += [k] * v
 
         fig = Figure()
-
         axis = fig.add_subplot(1, 1, 1)
         axis.hist(ans, bins = 20)
         axis.axvline(score, color='k', linestyle='dashed', linewidth=1)
@@ -194,7 +208,23 @@ class Simulation():
         fig.savefig(buf, format="png")
         data = base64.b64encode(buf.getbuffer())
         return data
-    
+     
+    def _getNeighborTeams(self, fanScores : np.ndarray, myScoreArr : np.ndarray,  n : int = 10) -> list[Teams]:
+        """
+        Input:
+            n  - number of neighbors to view, will view n/2 above and n/2 below
+        """
+        score = myScoreArr[:, -1][0]
+        outPerformed = (fanScores[:, -1] < score).sum()
+        poolSize = fanScores[:, -1].shape[0]
+        start = (poolSize - (outPerformed)) - n // 2
+        end = (poolSize - (outPerformed)) + n // 2
+        mid = (start + end) // 2
+        int1 = np.vstack((fanScores[start : mid], myScoreArr, fanScores[mid : end + 1]))
+        neighbs = ScoringNeighbors(int1, start, end, self.teams.teams)
+        return neighbs.makeEntries()
+
+
 if __name__ == "__main__":
     generator = KagglePredictionsGenerator('../data/kaggle_predictions/xgb_preds2022.csv')
     predictions = Predictions(generator)
@@ -205,13 +235,5 @@ if __name__ == "__main__":
     testBracket = PredictionBracket(inputObject = predictions, teams = teams, size = 64)
     
     a = Simulation(predBracket = testBracket)
-    res = a.runSimulation(poolSize = 1000, resetPreds = True)
-    
-    # a.getNeighborTeams(n = 25)
-    
-    # print(a.fanPool)
-    
-    # print(a.myBracket.winnerBracket)
-    # print(a.fanPool)
-    # print(a.score)
-    # print(a.percentile)
+    predBracket = a.runSimulation(poolSize = 1000, resetPreds = True)
+    res = a.scoreSimulation()
