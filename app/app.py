@@ -44,9 +44,9 @@ def results():
     vis_list = res[-1]
     return render_template('results.html', results = results, vis_list = vis_list)
 
-@app.route('/specific_results/<competitors>/<neighbors>')
-def specific_results(competitors, neighbors):
-    print(neighbors)
-    return f"You have {competitors} total competitors!"
+# @app.route('/specific_results/<competitors>/<neighbors>')
+# def specific_results(competitors, neighbors):
+#     print(neighbors)
+#     return f"You have {competitors} total competitors!"
 
 app.run(host='127.0.0.1', debug=True)
