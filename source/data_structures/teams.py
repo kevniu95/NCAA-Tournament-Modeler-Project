@@ -4,7 +4,7 @@ import re
 import csv
 from bs4 import BeautifulSoup
 from abc import ABC, abstractmethod
-from typing import Dict, Any
+from typing import Dict, Any, List
 
 class Team():
     """
@@ -77,7 +77,7 @@ class TeamImporter():
     the set of teams
     """
     def __init__(self):
-        self.teams : list[Team] = [None] * 64
+        self.teams : List[Team] = [None] * 64
     
     @abstractmethod
     def _initiateTeams(self):
@@ -182,7 +182,7 @@ class Teams():
         """
         Specify either a list of individual Team(s) or use teamImporter to initialize
         """
-        self.teams : list[Team] = teams # List of teams
+        self.teams : List[Team] = teams # List of teams
         self.teamImporter : TeamImporter = teamImporter
         
         self._predIdDict : Dict[str, int] = None 

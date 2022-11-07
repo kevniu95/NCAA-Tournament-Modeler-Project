@@ -1,6 +1,7 @@
 from multiprocessing.sharedctypes import Value
 from abc import abstractmethod
 import numpy as np
+from typing import List
     
 class BracketEntry():
     """
@@ -36,7 +37,7 @@ class Bracket():
     """
     def __init__(self, size : int = 64):
         self.size : int = size
-        self.winnerBracket : list[int] = [None] * size
+        self.winnerBracket : List[int] = [None] * size
         
     @abstractmethod
     def getWinnerBracket(self) -> np.ndarray:
