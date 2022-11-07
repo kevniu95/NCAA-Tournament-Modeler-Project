@@ -178,7 +178,7 @@ class Teams():
     """
     Class representing a list of NCAA Tournament Teams
     """
-    def __init__(self, teams : list[Team] = None, teamImporter : TeamImporter = SpecificEntryImporter()):
+    def __init__(self, teams = None, teamImporter : TeamImporter = SpecificEntryImporter()):
         """
         Specify either a list of individual Team(s) or use teamImporter to initialize
         """
