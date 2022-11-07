@@ -4,13 +4,14 @@ sys.path.insert(0, '../data_structures/')
 
 import os
 import numpy as np
-from predictionBracket import PredictionBracket
-from fansBracket import FansBracket
-from userBracket import UserBracket
-
 import base64
 from io import BytesIO
 from matplotlib.figure import Figure
+from typing import List, Dict
+
+from predictionBracket import PredictionBracket
+from fansBracket import FansBracket
+from userBracket import UserBracket
 
 from bracket import Bracket
 from teams import Teams, SpecificEntryImporter, Team
@@ -22,13 +23,13 @@ config = ConfigParser(os.environ)
 config.read(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'driver_config.ini'))
 
 class ScoringNeighbors():
-    def __init__(self, inputMat : np.ndarray, start : int, end : int, teams : list[Team]):
+    def __init__(self, inputMat : np.ndarray, start : int, end : int, teams : List[Team]):
         self.mat = inputMat
         self.start = start
         self.end = end
         self.teams = teams
 
-    def makeEntries(self) -> list[dict[str : str]]:
+    def makeEntries(self) -> List[Dict[str : str]]:
         mid = (self.start + self.end) // 2
         entryNames = [i for i in range(self.start, mid)] + ['User Bracket'] + [i for i in range(mid, self.end)]
         finalScores = self.mat[:, -1]
@@ -42,7 +43,7 @@ class ScoringNeighbors():
 
 
 class VisualTable():
-    def __init__(self, myScoreVis : np.ndarray, teams : list[Team]):
+    def __init__(self, myScoreVis : np.ndarray, teams : List[Team]):
         """
         myScoreVis is a numpy.ndarray with three columns
             - First column is user selection
@@ -50,7 +51,7 @@ class VisualTable():
             - Third column is boolean indicating correctness
         """
         self.teams = teams
-        self.vis_arr : list[VisualTableEntry] = self._process_score_arr(myScoreVis)
+        self.vis_arr : List[VisualTableEntry] = self._process_score_arr(myScoreVis)
         
     def _process_score_arr(self, myScoreVis):
         vis_arr = []
@@ -163,7 +164,7 @@ class Simulation():
         from ESPN Who Picked Whom 
             -see FansBracket module for more info
         """
-        simulatedPool : list[np.ndarray] = [None] * poolSize
+        simulatedPool : List[np.ndarray] = [None] * poolSize
         for i in range (poolSize):
             simulatedPool[i] : np.ndarray = self.fanBracket.getWinnerBracket()
         fanPool : np.ndarray = np.array(simulatedPool)
@@ -245,7 +246,7 @@ class Simulation():
             scoringFilter[start:end] = pointsPerGame
         return scoringFilter
     
-    def _collapseFanScores(self, fanScores : np.ndarray) -> dict[int : int]:
+    def _collapseFanScores(self, fanScores : np.ndarray) -> Dict[int : int]:
         """
         Collapses fan scores into histogram-like dictionary
         with unique scores and #of fans with those scores
@@ -257,7 +258,7 @@ class Simulation():
             valDict[i] = valDict.get(i, 0) + 1
         return valDict
 
-    def _plotHistogram(self, fanHist : dict[int : int], score : int):
+    def _plotHistogram(self, fanHist : Dict[int : int], score : int):
         """
         Converts dictionary histogram into real matplotlib 
         histogram, encoded for sending to web app
@@ -276,7 +277,7 @@ class Simulation():
         data = base64.b64encode(buf.getbuffer())
         return data
      
-    def _getNeighborTeams(self, fanScores : np.ndarray, myScoreArr : np.ndarray,  n : int = 10) -> list[Teams]:
+    def _getNeighborTeams(self, fanScores : np.ndarray, myScoreArr : np.ndarray,  n : int = 10) -> List[Teams]:
         """
         Input:
             n  - number of neighbors to view, will view n/2 above and n/2 below

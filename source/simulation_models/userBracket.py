@@ -6,6 +6,8 @@ import requests
 import re
 from bs4 import BeautifulSoup
 import numpy as np
+from typing import List
+
 from bracket import Bracket
 from teams import Team, Teams, SpecificEntryImporter
 
@@ -24,7 +26,7 @@ class UserBracket(Bracket):
 
         picks = soup.find_all('div', class_ = re.compile('slot s_'))
         nonChampWinners = [pick for pick in picks if int(pick['data-slotindex']) > 63]
-        winners : list[int] = []
+        winners : List[int] = []
         # A. Get everyone except for winner of Championship game
         for entry in nonChampWinners:
             spans = entry.find_all('span')
@@ -45,7 +47,7 @@ class UserBracket(Bracket):
         self.winnerBracket = self._assignWinners(winners)
         return self.winnerBracket
 
-    def _assignWinners(self, winners : list[int]) -> np.ndarray:
+    def _assignWinners(self, winners : List[int]) -> np.ndarray:
         self.winnerBracket[32:] = winners[:32]
         self.winnerBracket[16:32] = winners[32:48]
         self.winnerBracket[8:16] = winners[48:56]

@@ -5,6 +5,8 @@ sys.path.insert(0, '../data_structures/')
 import numpy as np
 import random
 import math
+from typing import List
+
 from teams import Team, Teams, SpecificEntryImporter
 from bracket import BracketEntry, Bracket
 from predictions import Predictions, KagglePredictionsGenerator
@@ -84,7 +86,7 @@ class PredictionBracket(Bracket):
     def __init__(self, inputObject : Predictions, teams : Teams = None, size : int = 64):
         super().__init__(size = size)
         self.teams : Teams = teams
-        self.gameBracket : list[PredictionBracketEntry] = [None] * size # Ordered list of bracketEntries
+        self.gameBracket : List[PredictionBracketEntry] = [None] * size # Ordered list of bracketEntries
         self.inputObject : Predictions = inputObject
         
         self._assignFirstRound()

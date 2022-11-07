@@ -5,6 +5,8 @@ sys.path.insert(0, '../data_structures/')
 import requests
 import re
 import numpy as np
+from typing import List
+
 from bs4 import BeautifulSoup
 from bracket import Bracket, BracketEntry
 from teams import Team, Teams, SpecificEntryImporter
@@ -21,9 +23,9 @@ class BackwardBracketEntry(BracketEntry):
     - rd : int - the round that this bracketEntry occurs in 
                 -so we can lookup how many people selected team i to advance in this round
     """
-    def __init__(self, index : int, teamList : list[Team], rd : int):
+    def __init__(self, index : int, teamList : List[Team], rd : int):
         super().__init__(index)
-        self.teamList : list[Team] = teamList
+        self.teamList : List[Team] = teamList
         self.rd : int = rd
     
     def getWinner(self) -> Team:
