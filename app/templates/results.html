@@ -12,7 +12,7 @@
 	<table id="vsPool" class="table table-striped">
 		<thead>
 		  <tr>
-			<th>Number of competitors</th>
+			<th># of competitors</th>
 			<th>Histogram</th>
 			<th>Percentile</th>
 			<!-- <th>Specific Results</th> -->
@@ -23,7 +23,7 @@
 		  {% for k, v in results.items() %}
 			<tr>
 			  <td align='right'>{{ k }}</td>
-			  <td> <img src = "data:image/png;base64, {{ v['fanHist'].decode('utf-8') }}" height = 150 width = 250> </td> 
+			  <td> <img src = "data:image/png;base64, {{ v['fanHist'].decode('utf-8') }}" height = 250 width = 350> </td> 
 			  <td align='right'> {{ v['percentile']}}%</td>
 			  <!-- <td {{ neighbors }} -->
 			  <!-- <td><a href={{ url_for ('specific_results', competitors=k, neighbors = neighbors)}}>View specific results </a></td> -->
