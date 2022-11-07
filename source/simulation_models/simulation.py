@@ -29,7 +29,7 @@ class ScoringNeighbors():
         self.end = end
         self.teams = teams
 
-    def makeEntries(self) -> List[Dict[str : str]]:
+    def makeEntries(self) -> List[Dict[str, str]]:
         mid = (self.start + self.end) // 2
         entryNames = [i for i in range(self.start, mid)] + ['User Bracket'] + [i for i in range(mid, self.end)]
         finalScores = self.mat[:, -1]
