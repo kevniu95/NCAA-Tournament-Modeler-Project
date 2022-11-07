@@ -35,18 +35,27 @@
 		<thead>
 		  <tr>
 			<th>Round</th>
+			<th>Game #</th>
 			<th>Simulated Winner</th>
 			<th>Your Selected Winner</th>
-			<th>Points Scored</th>
+			<th>Your Score</th>
 			</tr>
 		</thead>
 		<tbody>
+			<tr style="outline: thin solid">
+				<td align='center' style="outline: thin solid"><strong>Total</strong></td>
+				<td align='center'></td>
+				<td align='center'></td>
+				<td align='center'></td>
+				<td align='center' style="outline: thin solid"><strong>{{ results[100]['score']}} / 1920</strong></td>
+			</tr>
 		  {% for i in vis_list %}
 			<tr>
-			  <td>{{ i.label }}</td>
-			  <td><img src = "{{ i.c_team.imgLink }}" height = 30 width = 30> {{ i.c_team.name }}</td>
-			  <td><img src = "{{ i.u_team.imgLink }}" height = 30 width = 30> {{ i.u_team.name }}</td>
-			  <td>{{ i.printScore }}</td>
+			  <td align='center'>{{ i.label }}</td>
+			  <td align='center'>{{ i.gameNumber }}</td>
+			  <td align='left'><img src = "{{ i.c_team.imgLink }}" height = 30 width = 30> {{ i.c_team.name }}</td>
+			  <td align='left'><img src = "{{ i.u_team.imgLink }}" height = 30 width = 30> {{ i.u_team.name }}</td>
+			  <td align='center'>{{ i.printScore }}</td>
 			  </tr>
 		  {% endfor %}
 		</tbody>
@@ -57,7 +66,10 @@
 	if(t) {
 		Array.from(t.rows).forEach((tr, rowIdx) => {
 			Array.from(tr.cells).forEach((cell, cellIdx) => {
-				if (cellIdx == 3 && rowIdx > 0){
+				if (rowIdx == 1){
+					tr.style.backgroundColor = 'RGBA(0, 0, 0, 0.1)'
+				}
+				else if (cellIdx == 4 && rowIdx > 1){
 					if (cell.innerText.charAt(0) != '0'){
 						tr.style.backgroundColor = 'RGBA(111, 245, 111, 0.5)'
 					}

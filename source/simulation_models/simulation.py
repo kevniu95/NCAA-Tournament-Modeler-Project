@@ -60,7 +60,7 @@ class VisualTable():
                 pts = 320 / (2**(int(np.log2(num) // 1)))
                 userSel = self.teams[i[0]]
                 corrSel = self.teams[i[1]]
-                vis_arr.append(VisualTableEntry(userSel, corrSel, pts))
+                vis_arr.append(VisualTableEntry(userSel, corrSel, pts, num))
         return vis_arr
     
     def return_vis_arr(self):
@@ -68,8 +68,8 @@ class VisualTable():
 
             
 class VisualTableEntry():
-    roundLabels = dict(zip([320, 160, 80, 40, 20, 10], ['NCG', 'F4', 'E8', 'S16', 'R32', 'R64']))
-    def __init__(self, userTeam : Team, correctTeam : Team, pts : int):
+    roundLabels = dict(zip([320, 160, 80, 40, 20, 10], ['Championship', 'Final Four', 'Elite Eight', 'Sweet Sixteen', 'Round of 32', 'Round of 64']))
+    def __init__(self, userTeam : Team, correctTeam : Team, pts : int, num : int):
         self.u_team = userTeam
         self.c_team = correctTeam
         self.pts = pts
@@ -77,6 +77,7 @@ class VisualTableEntry():
         self.score = int(self.correct) * self.pts
         self.label = self.roundLabels[pts]
         self.printScore = str(self.score)[:-2] + ' / ' + str(self.pts)[:-2] 
+        self.gameNumber = num
     
     def getResults(self):
         data = {'uTeam' : self.u_team.name, 
