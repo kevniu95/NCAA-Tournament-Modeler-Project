@@ -13,3 +13,4 @@ six==1.16.0
 urllib3==1.26.9
 urwid==1.2.2
 Flask==2.1.2
+matplotlib==3.5.3

@@ -1,7 +1,7 @@
 import os
 import csv
 from abc import ABC, abstractmethod
-from typing import Callable, Dict, Any
+from typing import Callable, Dict, Any, Tuple
 from teams import Team, Teams, SpecificEntryImporter
 
 
@@ -37,7 +37,7 @@ class PredictionTemplate():
         """
         Writes matchups and predictions to .csv file
         """
-        predIds : tuple[int, Team] = [(team.predId, team) for team in self.teams.teams]
+        predIds : Tuple[int, Team] = [(team.predId, team) for team in self.teams.teams]
         predIds.sort()
 
         matchups = []
@@ -104,7 +104,7 @@ class KagglePredictionsGenerator(PredictionsGenerator):
     def __init__(self, fileName):
         super().__init__(fileName)
         
-    def _generateProbabilities(self) -> Dict[tuple[int, int], float]:
+    def _generateProbabilities(self) -> Dict[Tuple[int, int], float]:
         if self._probabilities:
             return self._probabilities
         else:
@@ -119,7 +119,7 @@ class KagglePredictionsGenerator(PredictionsGenerator):
             self._probabilities = probDictionary
 
     @property
-    def probabilities(self) -> Dict[tuple[int, int], float]:
+    def probabilities(self) -> Dict[Tuple[int, int], float]:
         return self._probabilities
     
     @probabilities.setter
@@ -137,7 +137,7 @@ class Predictions():
         self._predictions = self.generator.probabilities
 
     @property
-    def predictions(self) -> Dict[tuple[int, int], float]:
+    def predictions(self) -> Dict[Tuple[int, int], float]:
         return self._predictions
     
     @predictions.setter
