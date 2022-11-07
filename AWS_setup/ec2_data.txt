@@ -18,5 +18,3 @@ python3 app.py
 # 3. Pip install needed requirements
 # echo "source ${HOME}/env/bin/activate" >> ${HOME}/.bashrc
 # source ~/.bashrc
-
-

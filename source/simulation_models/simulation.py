@@ -246,7 +246,7 @@ class Simulation():
             scoringFilter[start:end] = pointsPerGame
         return scoringFilter
     
-    def _collapseFanScores(self, fanScores : np.ndarray) -> Dict[int : int]:
+    def _collapseFanScores(self, fanScores : np.ndarray) -> Dict[int, int]:
         """
         Collapses fan scores into histogram-like dictionary
         with unique scores and #of fans with those scores
@@ -258,7 +258,7 @@ class Simulation():
             valDict[i] = valDict.get(i, 0) + 1
         return valDict
 
-    def _plotHistogram(self, fanHist : Dict[int : int], score : int):
+    def _plotHistogram(self, fanHist : Dict[int, int], score : int):
         """
         Converts dictionary histogram into real matplotlib 
         histogram, encoded for sending to web app
