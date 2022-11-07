@@ -53,8 +53,8 @@
 			<tr>
 			  <td align='center'>{{ i.label }}</td>
 			  <td align='center'>{{ i.gameNumber }}</td>
-			  <td align='left'><img src = "{{ i.c_team.imgLink }}" height = 30 width = 30> {{ i.c_team.name }}</td>
-			  <td align='left'><img src = "{{ i.u_team.imgLink }}" height = 30 width = 30> {{ i.u_team.name }}</td>
+			  <td align='left'><img src = "{{ i.c_team.imgLink }}" height = 30 width = 30> {{ i.c_team.name }} ({{i.c_team.seed}})</td>
+			  <td align='left'><img src = "{{ i.u_team.imgLink }}" height = 30 width = 30> {{ i.u_team.name }} ({{i.u_team.seed}})</td>
 			  <td align='center'>{{ i.printScore }}</td>
 			  </tr>
 		  {% endfor %}
