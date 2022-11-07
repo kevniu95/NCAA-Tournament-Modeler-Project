@@ -21,7 +21,6 @@ from simulation import Simulation
 
 app = Flask(__name__)
 
-
 @app.route("/", methods = ['GET'])
 def simulate():
     thisId = str(uuid.uuid4())

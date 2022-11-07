@@ -58,11 +58,12 @@
 		Array.from(t.rows).forEach((tr, rowIdx) => {
 			Array.from(tr.cells).forEach((cell, cellIdx) => {
 				if (cellIdx == 3 && rowIdx > 0){
-					if (cell.innerText.substring(1, 2) != '0'){
-						tr.style.backgroundColor = 'RGBA(241, 157, 157, 0.5)'
+					if (cell.innerText.charAt(0) != '0'){
+						tr.style.backgroundColor = 'RGBA(111, 245, 111, 0.5)'
 					}
 					else{
-						tr.style.backgroundColor = 'RGBA(111, 245, 111, 0.5)'
+						tr.style.backgroundColor = 'RGBA(241, 157, 157, 0.5)'
+
 					}
 				}
 			});
