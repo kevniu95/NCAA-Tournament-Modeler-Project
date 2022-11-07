@@ -136,7 +136,7 @@ class Simulation():
         return fanBracket
 
     def _initUser(self, myBracketUrl : UserBracket) -> UserBracket:
-        if myBracketUrl is None:
+        if len(myBracketUrl) < 60:
             myBracketUrl =  "https://fantasy.espn.com/tournament-challenge-bracket/2022/en/entry?entryID=53350427"
         myBracket = UserBracket(teams = self.teams, size = 64, userUrl = myBracketUrl)
         return myBracket

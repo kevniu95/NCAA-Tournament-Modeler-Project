@@ -12,9 +12,11 @@ pip3 install -r /home/ec2-user/config/ncaa_rqmts.txt
 # 2. Copy rest of ncaa project folder from git
 sudo yum install git -y
 git clone https://github.com/kevniu95/NCAA-Tournament-Modeler-Project /home/ec2-user/ncaa
+source /home/ec2-user/env/bin/activate 
 
-cd ncaa/app/
+cd /home/ec2-user/ncaa/app
 python3 app.py
+
 # 3. Pip install needed requirements
 # echo "source ${HOME}/env/bin/activate" >> ${HOME}/.bashrc
 # source ~/.bashrc
