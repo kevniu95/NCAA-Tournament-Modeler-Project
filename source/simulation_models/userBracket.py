@@ -20,7 +20,16 @@ class UserBracket(Bracket):
         if self.url is None:
             self.url = "https://fantasy.espn.com/tournament-challenge-bracket/2022/en/entry?entryID=53350427"
 
-    def getWinnerBracket(self) -> np.ndarray:
+    def getWinnerBracket(self, realWinners = False) -> np.ndarray:
+        if realWinners:
+            spansInd = 3
+            getChampFx = self._getRealWinner
+            selected = False
+        else:
+            spansInd = 7
+            getChampFx = self._getSelectedWinner
+            selected = True
+        
         page = requests.get(self.url)
         soup = BeautifulSoup(page.content, 'html.parser')
 
@@ -30,11 +39,20 @@ class UserBracket(Bracket):
         # A. Get everyone except for winner of Championship game
         for entry in nonChampWinners:
             spans = entry.find_all('span')
-            teamName : str = spans[7].text
+            teamName : str = spans[spansInd].text
             winner : Team = self.teams.nameTeamDict[teamName]
             winners.append(winner.bracketId)
         
         # B. Get winner of Championship game
+        winner = getChampFx(soup)
+        winners.append(winner.bracketId)
+
+        winnerBracket = self._assignWinners(winners)
+        if selected:
+            self.winnerBracket = winnerBracket
+        return winnerBracket
+    
+    def _getSelectedWinner(self, soup):
         champ = soup.find_all('div', class_ = re.compile('center'))[0]
         
         names = champ.find_all('span', class_ = 'name')
@@ -43,19 +61,26 @@ class UserBracket(Bracket):
         else:
             winnerName = champ.find_all('span', class_ = 'name')[0].text
         winner : Team = self.teams.nameTeamDict[winnerName]
-        winners.append(winner.bracketId)
-        self.winnerBracket = self._assignWinners(winners)
-        return self.winnerBracket
+        return winner
+    
+    def _getRealWinner(self, soup):
+        champ = soup.find_all('div', class_ = re.compile('center'))[0]
+        
+        name = champ.find('span', class_ = 'actual winner').find('span', class_ = 'name')
+        winnerName = name.text
+        winner : Team = self.teams.nameTeamDict[winnerName]
+        return winner
 
     def _assignWinners(self, winners : List[int]) -> np.ndarray:
-        self.winnerBracket[32:] = winners[:32]
-        self.winnerBracket[16:32] = winners[32:48]
-        self.winnerBracket[8:16] = winners[48:56]
-        self.winnerBracket[4:8] = winners[56:60]
-        self.winnerBracket[2:4] = winners[60:62]
-        self.winnerBracket[1:2] = winners[62:63]
-        self.winnerBracket[0] = -1
-        return np.array(self.winnerBracket)
+        bracket : List[int] = [None] * self.size
+        bracket[32:] = winners[:32]
+        bracket[16:32] = winners[32:48]
+        bracket[8:16] = winners[48:56]
+        bracket[4:8] = winners[56:60]
+        bracket[2:4] = winners[60:62]
+        bracket[1:2] = winners[62:63]
+        bracket[0] = -1
+        return np.array(bracket)
 
 def main():
     entryImporter = SpecificEntryImporter()
@@ -64,8 +89,10 @@ def main():
     
     kevUrl = "https://fantasy.espn.com/tournament-challenge-bracket/2022/en/entry?entryID=53350427"
     test = UserBracket(teams = teams, size = 64, userUrl = kevUrl)
-    print(test.getWinnerBracket())
-    print(len(test.winnerBracket))
+    test.getWinnerBracket()
+    print(test.winnerBracket)
+    print(test.getWinnerBracket(realWinners = True))
+    # print(len(test.winnerBracket))
 
     
 if __name__ == '__main__':
