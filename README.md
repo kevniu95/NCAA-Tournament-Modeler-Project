@@ -5,6 +5,11 @@
 The purpose of this project is to help basketball fans (1) score their brackets against realistic outcomes of the NCAA tournament and (2) assess how their scores would place against a realistic pool of simulated competitors. This should help fans determine if their bracket entries might score well after accounting for:
 1. The “true” best-guess probabilities for all possible games in the tournament 
 	- (As determined by a model that might score well in the March Madness Kaggle [competition](https://www.kaggle.com/competitions/mens-march-mania-2022/data/) for instance)
+		- The model used is an XGBoostClassifier trained on 80,000 regular and postseason games. 
+		- Log-loss score as measured by 2022 Kaggle tournament (unseen data for this model) would have been 0.6379. 
+			- Would have placed 329 out of...
+				- 930 total Kaggle entries
+				- 657 total Kaggle entries that do better than 50-50 baseline
 2. How the general public has filled out their brackets
 	- [ESPN Who Picked Whom](https://fantasy.espn.com/tournament-challenge-bracket/2022/en/whopickedwhom)
 
