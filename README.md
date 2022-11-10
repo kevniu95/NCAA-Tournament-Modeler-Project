@@ -1,5 +1,7 @@
 # NCAA-Tournament-Modeler-Project
 
+Check out the web application [here](http://3.221.83.248:5000)!
+
 **I. Project Description**
 
 The purpose of this project is to help basketball fans (1) score their brackets against realistic outcomes of the NCAA tournament and (2) assess how their scores would place against a realistic pool of simulated competitors. This should help fans determine if their bracket entries might score well after accounting for:
