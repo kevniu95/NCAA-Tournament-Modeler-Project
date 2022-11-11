@@ -49,13 +49,13 @@
 				<td align='center'></td>
 				<td align='center' style="outline: thin solid"><strong>{{ results[100]['score']}} / 1920</strong></td>
 			</tr>
-		  {% for i in vis_list %}
+		  {% for i in results[100]['visualization'] %}
 			<tr>
-			  <td align='center'>{{ i.label }}</td>
-			  <td align='center'>{{ i.gameNumber }}</td>
-			  <td align='left'><img src = "{{ i.c_team.imgLink }}" height = 30 width = 30> {{ i.c_team.name }} ({{i.c_team.seed}})</td>
-			  <td align='left'><img src = "{{ i.u_team.imgLink }}" height = 30 width = 30> {{ i.u_team.name }} ({{i.u_team.seed}})</td>
-			  <td align='center'>{{ i.printScore }}</td>
+			  <td align='center'>{{ i['label'] }}</td>
+			  <td align='center'>{{ i['gameNum'] }}</td>
+			  <td align='left'><img src = "{{ i['c_team']['img'] }}" height = 30 width = 30> {{ i['c_team']['name'] }} ({{i['c_team']['seed']}})</td>
+			  <td align='left'><img src = "{{ i['u_team']['img'] }}" height = 30 width = 30> {{ i['u_team']['name'] }} ({{i['u_team']['seed']}})</td>
+			  <td align='center'>{{ i['score'] }}</td>
 			  </tr>
 		  {% endfor %}
 		</tbody>

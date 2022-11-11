@@ -4,10 +4,7 @@ sys.path.insert(0, '../data_structures/')
 
 import os
 import numpy as np
-import base64
-from io import BytesIO
-from matplotlib.figure import Figure
-from typing import List, Dict
+from typing import List, Dict, Tuple
 
 from predictionBracket import PredictionBracket
 from fansBracket import FansBracket
@@ -51,24 +48,26 @@ class VisualTable():
             - Third column is boolean indicating correctness
         """
         self.teams = teams
-        self.vis_arr : List[VisualTableEntry] = self._process_score_arr(myScoreVis)
+        self._vis_arr : List[Dict] = self._process_score_arr(myScoreVis)
         
-    def _process_score_arr(self, myScoreVis):
+    def _process_score_arr(self, myScoreVis) -> List[Dict]:
         vis_arr = []
         for num, i in enumerate(myScoreVis):
             if num > 0:
                 pts = 320 / (2**(int(np.log2(num) // 1)))
                 userSel = self.teams[i[0]]
                 corrSel = self.teams[i[1]]
-                vis_arr.append(VisualTableEntry(userSel, corrSel, pts, num))
+                a = VisualTableEntry(userSel, corrSel, pts, num)
+                vis_arr.append(a.getResults())
         return vis_arr
     
-    def return_vis_arr(self):
-        return self.vis_arr
+    def return_vis_arr(self) -> List[Dict]:
+        return self._vis_arr
 
             
 class VisualTableEntry():
-    roundLabels = dict(zip([320, 160, 80, 40, 20, 10], ['Championship', 'Final Four', 'Elite Eight', 'Sweet Sixteen', 'Round of 32', 'Round of 64']))
+    roundLabels = dict(zip([320, 160, 80, 40, 20, 10], 
+                        ['Championship', 'Final Four', 'Elite Eight', 'Sweet Sixteen', 'Round of 32', 'Round of 64']))
     def __init__(self, userTeam : Team, correctTeam : Team, pts : int, num : int):
         self.u_team = userTeam
         self.c_team = correctTeam
@@ -80,14 +79,14 @@ class VisualTableEntry():
         self.gameNumber = num
     
     def getResults(self):
-        data = {'uTeam' : self.u_team.name, 
-                'uTeamImg' : self.u_team.imgLink,
-                'cTeam' : self.c_team.name,
-                'cTeamImg' : self.c_team.imgLink,
-                'pts' : self.pts,
-                'correct' : self.correct,
-                'score' : self.score,
-                'label' : self.label}
+        tmKeys = ['name', 'seed', 'img']
+        uTeamVals = [self.u_team.name, self.u_team.seed, self.u_team.imgLink]
+        cTeamVals = [self.c_team.name, self.c_team.seed, self.c_team.imgLink]
+        data = {'label' : self.label,
+                'gameNum' : self.gameNumber,
+                'u_team' : dict(zip(tmKeys, uTeamVals)),
+                'c_team' : dict(zip(tmKeys, cTeamVals)),
+                'score' : self.printScore}
         return data
 
     def __str__(self):
@@ -137,12 +136,12 @@ class Simulation():
         return fanBracket
 
     def _initUser(self, myBracketUrl : UserBracket) -> UserBracket:
-        if len(myBracketUrl) < 60:
+        if not myBracketUrl or len(myBracketUrl) < 60:
             myBracketUrl =  "https://fantasy.espn.com/tournament-challenge-bracket/2022/en/entry?entryID=53350427"
         myBracket = UserBracket(teams = self.teams, size = 64, userUrl = myBracketUrl)
         return myBracket
     
-    def runSimulation(self, poolSize : int, resetPreds : bool):
+    def runSimulation(self, poolSize : int, resetPreds : bool) -> np.ndarray:
         """
         Gets and saves winner bracket for 
          - My Bracket
@@ -171,35 +170,36 @@ class Simulation():
         fanPool : np.ndarray = np.array(simulatedPool)
         return fanPool
     
-    def scoreSimulation(self):
+    def scoreSimulation(self) -> Tuple[str, str, bytes, Dict]:
         """
         To be called after runSimulation() function
         -Returns:
         - string rep of user score
         - string rep of user score percentile
-        - histogram of user performance vs fanPool
+        - bytes rep of histogram showing user performance vs fanPool
         - neighbors around user
         """
-        myScoreArr, myScoreVis, fanScores = self._rankScore(self.fanPool)
+        rankScoreRes : Tuple[np.ndarray, np.ndarray, np.ndarray] = self._rankScore(self.fanPool)
+        myScoreArr, myScoreVis, fanScores = rankScoreRes
         
-        score = myScoreArr[:, -1][0]
+        score : int = myScoreArr[:, -1][0]
         outPerformed = (fanScores[:, -1] < score).sum()
-        percentile = str(round(100 * (outPerformed / self.poolSize), 1))
+        percentile : str = str(round(100 * (outPerformed / self.poolSize), 1))
         print(f"Your bracket entry outperformed {outPerformed} simulated fan entries, better than {percentile}% of entries")
 
-        histNums = self._collapseFanScores(fanScores)
-        hist = self._plotHistogram(histNums, score)
-        neighbors = self._getNeighborTeams(fanScores, myScoreArr, n= 24)
-        scoreVis = VisualTable(myScoreVis, self.teams.teams).return_vis_arr()
-        return str(score)[:-2], percentile, hist, neighbors, scoreVis
+        histNums : Dict[int, int] = self._collapseFanScores(fanScores)
+            # Choosing to defer creation of histogram to app server
+            # Saves 10-15 KB of memory per entry
+        scoreVis : VisualTable  = VisualTable(myScoreVis, self.teams.teams).return_vis_arr()
+        return str(score)[:-2], percentile, histNums, scoreVis
     
-    def _rankScore(self, fanPool : np.ndarray):
+    def _rankScore(self, fanPool : np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
         myScore, my_score_vis = self._score(self.myBracket.winnerBracket, self.predBracket.winnerBracket)
         fanScores, _ = self._score(fanPool, self.predBracket.winnerBracket)
         fanScores = fanScores[fanScores[:, -1].argsort()][::-1][:fanScores.shape[0]]
         return myScore, my_score_vis, fanScores
 
-    def _score(self, entry : np.ndarray, actual : np.ndarray) -> np.ndarray:
+    def _score(self, entry : np.ndarray, actual : np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
         """
         Inputs
             - entry : np.ndarray  - winnerBracket array of bracket entry being
@@ -212,7 +212,7 @@ class Simulation():
         """        
         scoringFilter : np.ndarray = self._createScoringFilter()
         scoringUser = False
-        # Re-shape both entry andn actual to (1, 64) np.ndarrays
+        # Re-shape both entry and actual to (1, 64) np.ndarrays
         if np.ndim(entry) == 1:
             scoringUser = True
             entry = entry.reshape((-1, entry.shape[0]))
@@ -226,12 +226,13 @@ class Simulation():
         
         # If it is the user array (not fanPool), will return extra
         #  np.ndarray to help with visualization of results
+        #  - Simulated winner / selected winner / Correct or not
         vis_arr = None
         if scoringUser:
             new_shape = (entry.shape[1], entry.shape[0])
             vis_arr = np.hstack((entry.reshape(new_shape), actual[None, :].reshape(new_shape), 
                                 (boolMat + [0] * boolMat.shape[0]).reshape(new_shape)))
-            
+        
         # Append score to end of entry ndarray and return
         # To preserve individual brackets of fan pool
         return np.hstack((entry, scoreMat)), vis_arr
@@ -259,24 +260,24 @@ class Simulation():
             valDict[i] = valDict.get(i, 0) + 1
         return valDict
 
-    def _plotHistogram(self, fanHist : Dict[int, int], score : int):
-        """
-        Converts dictionary histogram into real matplotlib 
-        histogram, encoded for sending to web app
-        """
-        ans = []
-        for k, v in fanHist.items():
-            ans += [k] * v
+    # def _plotHistogram(self, fanHist : Dict[int, int], score : int) -> bytes:
+    #     """
+    #     Converts dictionary histogram into real matplotlib 
+    #     histogram, whic is then encoded for sending to web app
+    #     """
+    #     ans = []
+    #     for k, v in fanHist.items():
+    #         ans += [k] * v
 
-        fig = Figure()
-        axis = fig.add_subplot(1, 1, 1)
-        axis.hist(ans, bins = 20)
-        axis.axvline(score, color='k', linestyle='dashed', linewidth=1)
+    #     fig = Figure()
+    #     axis = fig.add_subplot(1, 1, 1)
+    #     axis.hist(ans, bins = 20)
+    #     axis.axvline(score, color='k', linestyle='dashed', linewidth=1)
 
-        buf = BytesIO()
-        fig.savefig(buf, format="png")
-        data = base64.b64encode(buf.getbuffer())
-        return data
+    #     buf = BytesIO()
+    #     fig.savefig(buf, format="png")
+    #     data = base64.b64encode(buf.getbuffer())
+    #     return data
      
     def _getNeighborTeams(self, fanScores : np.ndarray, myScoreArr : np.ndarray,  n : int = 10) -> List[Teams]:
         """
