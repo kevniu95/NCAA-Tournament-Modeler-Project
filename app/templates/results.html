@@ -5,7 +5,8 @@
 	</head>
   <body>
 		<!-- Headings -->
-		<h2>Your bracket entry scored {{ results[100]['score'] }} points in this simulation.</h2>
+		<h1>ESPN Bracket Entry {{ espnId }}</h1>
+		<h2>-Scored {{ results['score'] }} points in this simulation.</h2>
 		<h3>A. Here's how that stacks up against your simulated competitors...</h3>
 	</body>
 
@@ -18,10 +19,10 @@
 			</tr>
 		</thead>
 		<tbody>
-		  {% for k, v in results.items() %}
+		  {% for k, v in results['entryAtSize'].items() %}
 			<tr>
 			  <td align='right'>{{ k }}</td>
-			  <td> <img src = "data:image/png;base64, {{ v['fanHist'].decode('utf-8') }}" height = 250 width = 350> </td> 
+			  <td> <img src = "data:image/png;base64, {{ v['histPlot'].decode('utf-8') }}" height = 250 width = 350> </td> 
 			  <td align='right'> {{ v['percentile']}}%</td>
 			  </tr>
 		  {% endfor %}
@@ -47,9 +48,9 @@
 				<td align='center'></td>
 				<td align='center'></td>
 				<td align='center'></td>
-				<td align='center' style="outline: thin solid"><strong>{{ results[100]['score']}} / 1920</strong></td>
+				<td align='center' style="outline: thin solid"><strong>{{ results['score']}} / 1920</strong></td>
 			</tr>
-		  {% for i in results[100]['visualization'] %}
+		  {% for i in results['visualization'] %}
 			<tr>
 			  <td align='center'>{{ i['label'] }}</td>
 			  <td align='center'>{{ i['gameNum'] }}</td>
