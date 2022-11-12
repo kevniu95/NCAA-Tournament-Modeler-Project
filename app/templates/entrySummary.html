@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+	<head>	
+		<title>Entry Summary</title>
+	</head>
+  <body>
+		<!-- Headings -->
+		<h1>ESPN Bracket Entry {{ metadata[0]['entry_id'] }} </h1>
+	</body>
+
+	<body>
+		<!-- Headings -->
+		<h2>Historical Performance</h2>
+	</body>
+	<table id="history" class="table table-striped">
+		<thead>
+		  <tr>
+			<th>Sim ID</th>
+			<th>Percentile (n = 100) </th>
+            <th>Percentile (n = 1K) </th>
+            <th>Percentile (n = 10K) </th>
+            <th>Percentile (n = 25K) </th>
+			<th>Sim Champion</th>
+			<th>Sim Final Four</th>
+            <th>Score</th>
+            <th>View</th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for i in metadata %}
+			<tr>
+			  <td align='center'>{{ i['simulation_id'] }}</td>
+			  <td align='center'>{{ i['entryAtSize']['100']['percentile'] }}%</td>
+              <td align='center'>{{ i['entryAtSize']['1000']['percentile'] }}%</td>
+              <td align='center'>{{ i['entryAtSize']['10000']['percentile'] }}%</td>
+              <td align='center'>{{ i['entryAtSize']['25000']['percentile'] }}%</td>
+              <td align='center'><img src = "{{ i['visualization'][0]['c_team']['img'] }}" height = 30 width = 30> </td>
+              <td align='center'>
+                <img src = "{{ i['visualization'][3]['c_team']['img'] }}" height = 30 width = 30> 
+                <img src = "{{ i['visualization'][4]['c_team']['img'] }}" height = 30 width = 30> 
+                <img src = "{{ i['visualization'][5]['c_team']['img'] }}" height = 30 width = 30> 
+                <img src = "{{ i['visualization'][6]['c_team']['img'] }}" height = 30 width = 30> 
+                </td>
+            
+              <td align='center'><strong>{{ i['score'] }} / 1920</strong></td>
+              <td align='center'>ViewMeLink</td>
+              
+			  </tr>
+		  {% endfor %}
+          <tr style="outline: thin solid">
+            <td align='center' style="outline: thin solid"><strong>Average</strong></td>
+            <td align='center' style="outline: thin solid"><strong>{{ entryAtSizeSumm['100'] }}%</strong></td>
+            <td align='center' style="outline: thin solid"><strong>{{ entryAtSizeSumm['1000'] }}%</strong></td>
+            <td align='center' style="outline: thin solid"><strong>{{ entryAtSizeSumm['10000'] }}%</strong></td>
+            <td align='center' style="outline: thin solid"><strong>{{ entryAtSizeSumm['25000'] }}%</strong></td>
+            <td align='center'></td>
+            <td align='center'></td>
+            <td align='center' style="outline: thin solid"><strong>{{ scoreSumm }} / 1920</strong></td>
+            <td align='center'></td>
+        </tr>
+      
+		</tbody>
+	  </table>
+
+	<script>
+	var t = document.getElementById('vsSim');
+	if(t) {
+		Array.from(t.rows).forEach((tr, rowIdx) => {
+			Array.from(tr.cells).forEach((cell, cellIdx) => {
+				if (rowIdx == 1){
+					tr.style.backgroundColor = 'RGBA(0, 0, 0, 0.1)'
+				}
+				else if (cellIdx == 4 && rowIdx > 1){
+					if (cell.innerText.charAt(0) != '0'){
+						tr.style.backgroundColor = 'RGBA(111, 245, 111, 0.5)'
+					}
+					else{
+						tr.style.backgroundColor = 'RGBA(241, 157, 157, 0.5)'
+
+					}
+				}
+			});
+		});
+	}
+	</script>
+</html> 

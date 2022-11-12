@@ -1,12 +1,13 @@
 <!DOCTYPE html>
 <html>
 	<head>	
-		<title>HTML Cheat Sheet</title>
+		<title>Simulation</title>
 	</head>
   <body>
 		<!-- Headings -->
-		<h1>ESPN Bracket Entry {{ espnId }}</h1>
-		<h2>-Scored {{ results['score'] }} points in this simulation.</h2>
+		<h2>You scored {{ results['score'] }} points in this simulation.</h2>
+		<h3>-Get more <a href = "{{ url_for('entrySummary', entryId = results['entry_id']) }}"> info </a> on ESPN Bracket Entry {{ espnId }} </h3>
+		
 		<h3>A. Here's how that stacks up against your simulated competitors...</h3>
 	</body>
 

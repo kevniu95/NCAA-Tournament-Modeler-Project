@@ -27,7 +27,7 @@ def writeToDynamo(app : Flask, tableName : str, write_data : Dict) -> None:
         app.logger.error(f'Unspecified error while uploading to Dynamo DB: {e}')
         return abort(500)
 
-def readDynamoData(app : Flask, tableName : str, **kwargs):
+def readDynamo(app : Flask, tableName : str, **kwargs):
     dynamodb = boto3.resource('dynamodb', region_name = MY_REGION)
     table = dynamodb.Table(tableName)
     try:
@@ -45,19 +45,26 @@ def readDynamoData(app : Flask, tableName : str, **kwargs):
 # ==================
 def writeToDynamoMeta(app : Flask, entry_results : Dict) -> None:
     # 1. Remove the histogram plots before saving to DDB
-    saveHistPlots = {}
+    saveHist = {'plots' : {},
+                'nums' : {}}
     for k, v in entry_results['entryAtSize'].items():
-        saveHistPlots[k] = entry_results['entryAtSize'][k]['histPlot']
+        saveHist['plots'][k] = entry_results['entryAtSize'][k]['histPlot']
+        saveHist['nums'][k] = entry_results['entryAtSize'][k]['histNums']
         del entry_results['entryAtSize'][k]['histPlot']
-    
+        del entry_results['entryAtSize'][k]['histNums']
+        
     # 2. Edit data and write to DDB
     write_data = json.loads(json.dumps(entry_results))
-    write_data = {k : v for k, v in write_data.items() if k != 'visualization'}
+    for k, v in write_data.items():
+        write_data[k] = v
+        if k == 'visualization':
+            write_data[k] = v[:7]
     writeToDynamo(app, DYNAMO_DB_META, write_data)
 
     # 3. Re-attach histogram plots
     for k,v in entry_results['entryAtSize'].items():
-        entry_results['entryAtSize'][k]['histPlot'] = saveHistPlots[k]
+        entry_results['entryAtSize'][k]['histPlot'] = saveHist['plots'][k]
+        entry_results['entryAtSize'][k]['histNums'] = saveHist['nums'][k]
         
 def writeToDynamoData(app : Flask, entry_results) -> None:
     # 1. Write data
@@ -65,5 +72,8 @@ def writeToDynamoData(app : Flask, entry_results) -> None:
     write_data = json.loads(json.dumps(write_data))
     writeToDynamo(app, DYNAMO_DB_DATA, write_data)
 
-def readDynamoDataMeta(app, **read_kwargs):
-    return readDynamoData(app, DYNAMO_DB_META, **read_kwargs)
+def readDynamoMeta(app, **read_kwargs):
+    return readDynamo(app, DYNAMO_DB_META, **read_kwargs)
+
+def readDynamoData(app, **read_kwargs):
+    return readDynamo(app, DYNAMO_DB_DATA, **read_kwargs)

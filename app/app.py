@@ -28,6 +28,7 @@ def results():
     
     # 1. Use link to get bracket entry id
     link = request.form['espnLink']
+    req_addr : str = request.remote_addr
     if len(link) == 0:
         link = "https://fantasy.espn.com/tournament-challenge-bracket/2022/en/entry?entryID=53350427"    
     espnId = int(link[link.rfind('=') + 1:])
@@ -38,7 +39,7 @@ def results():
                     'Limit' : 1,
                     'ScanIndexForward' : False,
                     'ReturnConsumedCapacity' : 'TOTAL'}
-    response = ddb_funcs.readDynamoDataMeta(app, **read_kwargs)
+    response = ddb_funcs.readDynamoMeta(app, **read_kwargs)
     sim_id = 1
     if (response and response['ResponseMetadata']['HTTPStatusCode'] == 200 and
         response['Count'] > 0):
@@ -48,6 +49,7 @@ def results():
     #    and Dynamo DB
     entry_results = {'entry_id' : espnId,
                     'simulation_id' : sim_id,
+                    'req_addr' : req_addr,
                     'score' : None,
                     'visualization' : None,
                     'entryAtSize' : {}}
@@ -76,6 +78,32 @@ def results():
     ddb_funcs.writeToDynamoData(app, entry_results)
         
     return render_template('results.html', results = entry_results, espnId = espnId)
+
+@app.route('/<entryId>/summary')
+def entrySummary(entryId):
+    entryId = int(entryId)
+    read_kwargs = {'KeyConditionExpression' : Key('entry_id').eq(entryId),
+                    'Limit' : 25,
+                    'ScanIndexForward' : False,
+                    'ReturnConsumedCapacity' : 'TOTAL'}
+    response_meta = ddb_funcs.readDynamoMeta(app, **read_kwargs)
+    
+    scoreSumm = []
+    metadata = response_meta['Items']
+    entryAtSizeSumm = {'100' : [], '1000' : [], '10000' : [], '25000' : []}
+    for i in metadata:
+        scoreSumm.append(int(i['score']))
+        for k in entryAtSizeSumm.keys():
+            if str(k) in i['entryAtSize'].keys():
+                entryAtSizeSumm[str(k)].append(float(i['entryAtSize'][str(k)]['percentile']))
+            else:
+                i['entryAtSize'][str(k)] = {}
+                i['entryAtSize'][str(k)]['percentile'] = -1
+    
+    scoreSumm = round(sum(scoreSumm) / len(scoreSumm),1)
+    entryAtSizeSumm = {k : (round(sum(v) / len(v),1) if len(v) > 0 else -1) for k, v in entryAtSizeSumm.items()}
+    print(entryAtSizeSumm)
+    return render_template('entrySummary.html', metadata = metadata, scoreSumm = scoreSumm, entryAtSizeSumm = entryAtSizeSumm)
 
 # @app.route('/specific_results/<competitors>/<neighbors>')
 # def specific_results(competitors, neighbors):
