@@ -1,0 +1,6 @@
+{
+    "python.analysis.extraPaths": [
+        "./AWS_setup/boto",
+        "./source/simulation_models"
+    ]
+}
