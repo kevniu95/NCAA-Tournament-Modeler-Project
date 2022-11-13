@@ -17,6 +17,13 @@ from boto3.dynamodb.conditions import Key
 
 app = Flask(__name__)
 
+def invalidRoute(entryId):
+    try:
+        entryId = int(entryId)
+        return False
+    except:
+        return True
+
 @app.route("/", methods = ['GET'])
 def simulate():
     thisId = str(uuid.uuid4())
@@ -72,6 +79,7 @@ def results():
                                             'histNums' : histNums,
                                             'histPlot' : histPlot}
         first = False
+    entry_results['entryAtSize']
     
     # 5. Write to Dynamo DB
     ddb_funcs.writeToDynamoMeta(app, entry_results)
@@ -83,7 +91,7 @@ def results():
 def entrySummary(entryId):
     if invalidRoute(entryId):
         return "Invalid entry id!"
-    read_kwargs = {'KeyConditionExpression' : Key('entry_id').eq(entryId),
+    read_kwargs = {'KeyConditionExpression' : Key('entry_id').eq(int(entryId)),
                     'Limit' : 25,
                     'ScanIndexForward' : False,
                     'ReturnConsumedCapacity' : 'TOTAL'}
@@ -109,13 +117,6 @@ def entrySummary(entryId):
                             metadata = metadata, 
                             scoreSumm = scoreSumm, 
                             entryAtSizeSumm = entryAtSizeSumm)
-
-def invalidRoute(entryId):
-    try:
-        entryId = int(entryId)
-        return False
-    except:
-        return True
 
 @app.route('/<entryId>/<simulationId>')
 def simulationResult(entryId, simulationId):
@@ -153,6 +154,9 @@ def simulationResult(entryId, simulationId):
                 histNums = entry_results['entryAtSize'][size]['histNums']
                 histPlot : bytes = Simulation.plotHistogram(histNums, int(score))
                 entry_results['entryAtSize'][size]['histPlot'] = histPlot
+    # print(entry_results['entryAtSize'].keys())
+    entry_results['entryAtSize'] = dict(sorted(entry_results['entryAtSize'].items()))
+    # entry_results['entryAtSize'] = 
     return render_template('results.html', results = entry_results, espnId = entryId)
 
 app.run(host='0.0.0.0', debug=True)
