@@ -79,14 +79,18 @@ def results():
         
     return render_template('results.html', results = entry_results, espnId = espnId)
 
-@app.route('/<entryId>/summary')
+@app.route('/<entryId>')
 def entrySummary(entryId):
-    entryId = int(entryId)
+    if invalidRoute(entryId):
+        return "Invalid entry id!"
     read_kwargs = {'KeyConditionExpression' : Key('entry_id').eq(entryId),
                     'Limit' : 25,
                     'ScanIndexForward' : False,
                     'ReturnConsumedCapacity' : 'TOTAL'}
     response_meta = ddb_funcs.queryDynamoMeta(app, **read_kwargs)
+    if ddb_funcs.handleEmptyQuery(response_meta):
+        return ddb_funcs.handleEmptyQuery(response_meta)
+
     scoreSumm = []
     metadata : List(Dict) = response_meta['Items']
     entryAtSizeSumm = {'100' : [], '1000' : [], '10000' : [], '25000' : []}
@@ -106,37 +110,49 @@ def entrySummary(entryId):
                             scoreSumm = scoreSumm, 
                             entryAtSizeSumm = entryAtSizeSumm)
 
+def invalidRoute(entryId):
+    try:
+        entryId = int(entryId)
+        return False
+    except:
+        return True
+
 @app.route('/<entryId>/<simulationId>')
 def simulationResult(entryId, simulationId):
-    # Need meta data
+    if invalidRoute(entryId):
+        return "Invalid entry id!"
+    
+    # Need both meta data and response data read from tables
     read_kwargs = {'KeyConditionExpression' : "entry_id = :entryId and simulation_id = :simId",
                     'ExpressionAttributeValues' : {':entryId' :  int(entryId),
                                                     ':simId' : int(simulationId)},
                     'Limit' : 1,
                     'ReturnConsumedCapacity' : 'TOTAL'}
-    meta_response = ddb_funcs.queryDynamoMeta(app, **read_kwargs)
-    
-    # Need to read visualization data from DDB
+    meta_response = ddb_funcs.queryDynamoMeta(app, **read_kwargs)    
     data_response = ddb_funcs.queryDynamoData(app, **read_kwargs)
     
-    if (meta_response and data_response and meta_response['Count'] > 0 and data_response['Count'] > 0):
-        entry_results = meta_response['Items'][0]
-        data_item = data_response['Items'][0]
+    if ddb_funcs.handleEmptyQuery(meta_response):
+        return ddb_funcs.handleEmptyQuery(meta_response)
+
+    if (meta_response and data_response and meta_response['Count'] > 0 
+        and data_response['Count'] > 0):
+        # Get response items
+        entry_results : Dict = meta_response['Items'][0]
+        data_item : Dict = data_response['Items'][0]
         
+        # Create new entry_results item to send to HTML template
+        entry_results['visualization'] = data_item['visualization']
+        for size in entry_results['entryAtSize'].keys():
+            entry_results['entryAtSize'][size]['histPlot'] = 'Ooops, no histogram'.encode('utf-8')
         score = entry_results['score']
         
-        entry_results['visualization'] = data_item['visualization']
-        entry_results['entryAtSize'] = data_item['entryAtSize']
+        if 'entryAtSize' in data_response['Items'][0].keys():
+            entry_results['entryAtSize'] = data_item['entryAtSize']
 
-        for size in entry_results['entryAtSize'].keys():
-            histNums = entry_results['entryAtSize'][size]['histNums']
-            histPlot = Simulation.plotHistogram(histNums, int(score))
-            entry_results['entryAtSize'][size]['histPlot'] = histPlot
+            for size in entry_results['entryAtSize'].keys():
+                histNums = entry_results['entryAtSize'][size]['histNums']
+                histPlot : bytes = Simulation.plotHistogram(histNums, int(score))
+                entry_results['entryAtSize'][size]['histPlot'] = histPlot
     return render_template('results.html', results = entry_results, espnId = entryId)
-
-# @app.route('/specific_results/<competitors>/<neighbors>')
-# def specific_results(competitors, neighbors):
-#     print(neighbors)
-#     return f"You have {competitors} total competitors!"
 
 app.run(host='0.0.0.0', debug=True)
