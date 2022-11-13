@@ -154,9 +154,7 @@ def simulationResult(entryId, simulationId):
                 histNums = entry_results['entryAtSize'][size]['histNums']
                 histPlot : bytes = Simulation.plotHistogram(histNums, int(score))
                 entry_results['entryAtSize'][size]['histPlot'] = histPlot
-    # print(entry_results['entryAtSize'].keys())
     entry_results['entryAtSize'] = dict(sorted(entry_results['entryAtSize'].items()))
-    # entry_results['entryAtSize'] = 
     return render_template('results.html', results = entry_results, espnId = entryId)
 
 app.run(host='0.0.0.0', debug=True)

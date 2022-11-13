@@ -266,25 +266,6 @@ class Simulation():
         
         return {str(k) : v for k, v in valDict.items()}
 
-    # def _plotHistogram(self, fanHist : Dict[int, int], score : int) -> bytes:
-    #     """
-    #     Converts dictionary histogram into real matplotlib 
-    #     histogram, whic is then encoded for sending to web app
-    #     """
-    #     ans = []
-    #     for k, v in fanHist.items():
-    #         ans += [k] * v
-
-    #     fig = Figure()
-    #     axis = fig.add_subplot(1, 1, 1)
-    #     axis.hist(ans, bins = 20)
-    #     axis.axvline(score, color='k', linestyle='dashed', linewidth=1)
-
-    #     buf = BytesIO()
-    #     fig.savefig(buf, format="png")
-    #     data = base64.b64encode(buf.getbuffer())
-    
-    #     return data
     @staticmethod
     def plotHistogram(fanHist : Dict[str, int], score : int) -> bytes:
         """
@@ -295,7 +276,7 @@ class Simulation():
         """
         ans = []
         for k, v in fanHist.items():
-            ans += [int(k[:-2])] * v
+            ans += [int(k[:-2])] * int(v)
 
         fig = Figure()
         axis = fig.add_subplot(1, 1, 1)

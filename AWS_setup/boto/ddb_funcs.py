@@ -27,7 +27,7 @@ def writeToDynamo(app : Flask, tableName : str, write_data : Dict) -> None:
         app.logger.error(f'Unspecified error while uploading to Dynamo DB: {e}')
         return abort(500)
 
-def readDynamo(app : Flask, tableName : str, **kwargs):
+def queryDynamo(app : Flask, tableName : str, **kwargs) -> Dict:
     dynamodb = boto3.resource('dynamodb', region_name = MY_REGION)
     table = dynamodb.Table(tableName)
     try:
@@ -66,14 +66,33 @@ def writeToDynamoMeta(app : Flask, entry_results : Dict) -> None:
         entry_results['entryAtSize'][k]['histPlot'] = saveHist['plots'][k]
         entry_results['entryAtSize'][k]['histNums'] = saveHist['nums'][k]
         
-def writeToDynamoData(app : Flask, entry_results) -> None:
+def writeToDynamoData(app : Flask, entry_results : Dict) -> None:
+    saveHist = {'plots' : {}}
     # 1. Write data
-    write_data = {k : v for k,v in entry_results.items() if k in ['entry_id', 'simulation_id', 'visualization']}
-    write_data = json.loads(json.dumps(write_data))
+    entry_results = {k : v for k,v in entry_results.items() if k in ['entry_id', 'simulation_id', 'visualization', 'entryAtSize']}
+    for k, v in entry_results['entryAtSize'].items():
+        saveHist['plots'][k] = entry_results['entryAtSize'][k]['histPlot']
+        del entry_results['entryAtSize'][k]['histPlot']
+        
+    write_data = json.loads(json.dumps(entry_results))
     writeToDynamo(app, DYNAMO_DB_DATA, write_data)
 
-def readDynamoMeta(app, **read_kwargs):
-    return readDynamo(app, DYNAMO_DB_META, **read_kwargs)
+    # 3. Re-attach histogram plots
+    for k,v in entry_results['entryAtSize'].items():
+        entry_results['entryAtSize'][k]['histPlot'] = saveHist['plots'][k]
 
-def readDynamoData(app, **read_kwargs):
-    return readDynamo(app, DYNAMO_DB_DATA, **read_kwargs)
+def queryDynamoMeta(app : Flask, **read_kwargs) -> Dict:
+    return queryDynamo(app, DYNAMO_DB_META, **read_kwargs)
+
+def queryDynamoData(app : Flask, **read_kwargs) -> Dict:
+    return queryDynamo(app, DYNAMO_DB_DATA, **read_kwargs)
+
+def handleEmptyQuery(resp : Dict):
+    """
+    resp is DynamoDB response to a query
+    """
+    if resp['ResponseMetadata']['HTTPStatusCode'] != 200:
+        return "Uh-oh, no information on this bracket entry yet!"
+    elif resp['Count'] == 0:
+        return "Uh-oh, no information on this bracket entry yet!"
+    
