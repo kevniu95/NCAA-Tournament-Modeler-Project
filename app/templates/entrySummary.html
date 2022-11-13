@@ -5,13 +5,25 @@
 	</head>
   <body>
 		<!-- Headings -->
-		<h1>ESPN Bracket Entry {{ metadata[0]['entry_id'] }} </h1>
+		<h1>ESPN Bracket Entry {{ metadata[0]['entry_id'] }} (<a href = "https://fantasy.espn.com/tournament-challenge-bracket/2022/en/entry?entryID={{ metadata[0]['entry_id'] }}" target = "_blank">view</a>)</h1>
+        
 	</body>
-
+    
+    
 	<body>
 		<!-- Headings -->
-		<h2>Historical Performance</h2>
+        <h2>A. Your selections:</h2>
+        <p><strong>Champion</strong></p>            
+        <img align = 'center' src = "{{ metadata[0]['visualization'][0]['u_team']['img'] }}" height = 150 width = 150><br>
+        <p><strong>Final Four</strong><br>
+                <img src = "{{ metadata[0]['visualization'][3]['u_team']['img'] }}" height = 50 width = 50>
+                <img src = "{{ metadata[0]['visualization'][4]['u_team']['img'] }}" height = 50 width = 50>
+                <img src = "{{ metadata[0]['visualization'][5]['u_team']['img'] }}" height = 50 width = 50>
+                <img src = "{{ metadata[0]['visualization'][6]['u_team']['img'] }}" height = 50 width = 50>
+            </p>
 	</body>
+    <br>
+    <h2>B. Historical Performance</h2>
 	<table id="history" class="table table-striped">
 		<thead>
 		  <tr>
@@ -40,10 +52,11 @@
                 <img src = "{{ i['visualization'][4]['c_team']['img'] }}" height = 30 width = 30> 
                 <img src = "{{ i['visualization'][5]['c_team']['img'] }}" height = 30 width = 30> 
                 <img src = "{{ i['visualization'][6]['c_team']['img'] }}" height = 30 width = 30> 
-                </td>
-            
+                </td>            
               <td align='center'><strong>{{ i['score'] }} / 1920</strong></td>
-              <td align='center'>ViewMeLink</td>
+              <td align='center'>
+                <a href = "{{ url_for('simulationResult', entryId = i['entry_id'], simulationId = i['simulation_id'])}}">View</a>
+              </td>
               
 			  </tr>
 		  {% endfor %}

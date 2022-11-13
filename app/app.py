@@ -5,7 +5,7 @@ import time
 from flask import (Flask, abort, flash, redirect, render_template, 
   request, session, url_for, jsonify)
 from typing import Tuple, Dict, List
-
+    
 sys.path.insert(0, '/home/ec2-user/ncaa/source/simulation_models/')
 sys.path.insert(0, '../source/simulation_models/')
 sys.path.insert(0, '../AWS_setup/boto/')
@@ -39,7 +39,7 @@ def results():
                     'Limit' : 1,
                     'ScanIndexForward' : False,
                     'ReturnConsumedCapacity' : 'TOTAL'}
-    response = ddb_funcs.readDynamoMeta(app, **read_kwargs)
+    response = ddb_funcs.queryDynamoMeta(app, **read_kwargs)
     sim_id = 1
     if (response and response['ResponseMetadata']['HTTPStatusCode'] == 200 and
         response['Count'] > 0):
@@ -86,10 +86,9 @@ def entrySummary(entryId):
                     'Limit' : 25,
                     'ScanIndexForward' : False,
                     'ReturnConsumedCapacity' : 'TOTAL'}
-    response_meta = ddb_funcs.readDynamoMeta(app, **read_kwargs)
-    
+    response_meta = ddb_funcs.queryDynamoMeta(app, **read_kwargs)
     scoreSumm = []
-    metadata = response_meta['Items']
+    metadata : List(Dict) = response_meta['Items']
     entryAtSizeSumm = {'100' : [], '1000' : [], '10000' : [], '25000' : []}
     for i in metadata:
         scoreSumm.append(int(i['score']))
@@ -102,8 +101,38 @@ def entrySummary(entryId):
     
     scoreSumm = round(sum(scoreSumm) / len(scoreSumm),1)
     entryAtSizeSumm = {k : (round(sum(v) / len(v),1) if len(v) > 0 else -1) for k, v in entryAtSizeSumm.items()}
-    print(entryAtSizeSumm)
-    return render_template('entrySummary.html', metadata = metadata, scoreSumm = scoreSumm, entryAtSizeSumm = entryAtSizeSumm)
+    return render_template('entrySummary.html', 
+                            metadata = metadata, 
+                            scoreSumm = scoreSumm, 
+                            entryAtSizeSumm = entryAtSizeSumm)
+
+@app.route('/<entryId>/<simulationId>')
+def simulationResult(entryId, simulationId):
+    # Need meta data
+    read_kwargs = {'KeyConditionExpression' : "entry_id = :entryId and simulation_id = :simId",
+                    'ExpressionAttributeValues' : {':entryId' :  int(entryId),
+                                                    ':simId' : int(simulationId)},
+                    'Limit' : 1,
+                    'ReturnConsumedCapacity' : 'TOTAL'}
+    meta_response = ddb_funcs.queryDynamoMeta(app, **read_kwargs)
+    
+    # Need to read visualization data from DDB
+    data_response = ddb_funcs.queryDynamoData(app, **read_kwargs)
+    
+    if (meta_response and data_response and meta_response['Count'] > 0 and data_response['Count'] > 0):
+        entry_results = meta_response['Items'][0]
+        data_item = data_response['Items'][0]
+        
+        score = entry_results['score']
+        
+        entry_results['visualization'] = data_item['visualization']
+        entry_results['entryAtSize'] = data_item['entryAtSize']
+
+        for size in entry_results['entryAtSize'].keys():
+            histNums = entry_results['entryAtSize'][size]['histNums']
+            histPlot = Simulation.plotHistogram(histNums, int(score))
+            entry_results['entryAtSize'][size]['histPlot'] = histPlot
+    return render_template('results.html', results = entry_results, espnId = entryId)
 
 # @app.route('/specific_results/<competitors>/<neighbors>')
 # def specific_results(competitors, neighbors):
