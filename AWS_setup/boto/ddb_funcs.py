@@ -54,7 +54,10 @@ def writeToDynamoMeta(app : Flask, entry_results : Dict) -> None:
         del entry_results['entryAtSize'][k]['histNums']
         
     # 2. Edit data and write to DDB
+    timeStamp = entry_results['time']
+    del entry_results['time']
     write_data = json.loads(json.dumps(entry_results))
+    write_data['time'] = timeStamp
     for k, v in write_data.items():
         write_data[k] = v
         if k == 'visualization':
