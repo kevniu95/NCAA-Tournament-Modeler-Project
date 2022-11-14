@@ -35,7 +35,7 @@ def results():
     
     # 1. Use link to get bracket entry id
     link = request.form['espnLink']
-    req_addr : str = request.remote_addr
+    req_addr = request.remote_addr
     if len(link) == 0:
         link = "https://fantasy.espn.com/tournament-challenge-bracket/2022/en/entry?entryID=53350427"    
     espnId = int(link[link.rfind('=') + 1:])
@@ -67,7 +67,7 @@ def results():
     sim = Simulation(myBracketUrl = link)
     for size in sizes:
         sim.runSimulation(poolSize = size, resetPreds = first)
-        res : Tuple[str, str, bytes, List[Dict]] = sim.scoreSimulation()
+        res = sim.scoreSimulation() #: Tuple[str, str, bytes, List[Dict]] 
         score, percentile, histNums, visualization = res
         if first:
             entry_results['score'] = score
@@ -100,7 +100,7 @@ def entrySummary(entryId):
         return ddb_funcs.handleEmptyQuery(response_meta)
 
     scoreSumm = []
-    metadata : List(Dict) = response_meta['Items']
+    metadata  = response_meta['Items'] # List(Dict)
     entryAtSizeSumm = {'100' : [], '1000' : [], '10000' : [], '25000' : []}
     for i in metadata:
         scoreSumm.append(int(i['score']))
@@ -139,8 +139,8 @@ def simulationResult(entryId, simulationId):
     if (meta_response and data_response and meta_response['Count'] > 0 
         and data_response['Count'] > 0):
         # Get response items
-        entry_results : Dict = meta_response['Items'][0]
-        data_item : Dict = data_response['Items'][0]
+        entry_results = meta_response['Items'][0] # Dict
+        data_item = data_response['Items'][0] # Dict
         
         # Create new entry_results item to send to HTML template
         entry_results['visualization'] = data_item['visualization']
@@ -153,7 +153,7 @@ def simulationResult(entryId, simulationId):
 
             for size in entry_results['entryAtSize'].keys():
                 histNums = entry_results['entryAtSize'][size]['histNums']
-                histPlot : bytes = Simulation.plotHistogram(histNums, int(score))
+                histPlot = Simulation.plotHistogram(histNums, int(score)) # bytes
                 entry_results['entryAtSize'][size]['histPlot'] = histPlot
     entry_results['entryAtSize'] = dict(sorted(entry_results['entryAtSize'].items()))
     return render_template('results.html', results = entry_results, espnId = entryId)
