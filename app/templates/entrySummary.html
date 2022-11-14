@@ -50,7 +50,7 @@
             <th style="outline:thin solid">n = 25K </th>
 			<th style="outline:thin solid">Sim Champion</th>
 			<th style="outline:thin solid">Sim Final Four</th>
-            <th style="outline:thin solid">Score</th>
+            <th style="outline:thin solid">Entry Score</th>
             <th style="outline:thin solid">Sim page</th>
 		</tr>
 		</thead>
@@ -69,7 +69,7 @@
                 <img src = "{{ i['visualization'][5]['c_team']['img'] }}" height = 30 width = 30> 
                 <img src = "{{ i['visualization'][6]['c_team']['img'] }}" height = 30 width = 30> 
                 </td>            
-              <td align='center'><strong>{{ i['score'] }} / 1920</strong></td>
+              <td align='center' style="outline:thin solid"><strong>{{ i['score'] }} / 1920</strong></td>
               <td align='center'>
                 <a href = "{{ url_for('simulationResult', entryId = i['entry_id'], simulationId = i['simulation_id'])}}">View</a>
               </td>
@@ -84,7 +84,7 @@
             <td align='center'><strong>{{ entryAtSizeSumm['25000'] }}%</strong></td>
             <td align='center'></td>
             <td align='center'></td>
-            <td align='center'><strong>{{ scoreSumm }} / 1920</strong></td>
+            <td align='center' style="outline:thin solid"><strong>{{ scoreSumm }} / 1920</strong></td>
             <td align='center'></td>
         </tr>
       
