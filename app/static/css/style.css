@@ -1,3 +1,39 @@
+.faq-container{
+    display: flex;
+    justify-content: left;
+    flex-direction: column;
+    width:50%;
+}
+
+.hr-line{
+    width: 50%;
+    margin-left: 0;
+}
+.active,
+.faq-page:hover {
+    background-color: #F9F9F9;
+}
+/* Style the faq-page panel. Note: hidden by default */
+.faq-body {
+    padding: 0 18px;
+    background-color: white;
+    display: none;
+    overflow: hidden;
+}
+.faq-page:after {
+    content: '\02795';
+    /* Unicode character for "plus" sign (+) */
+    font-size: 13px;
+    color: #777;
+    float: right;
+    margin-left: 5px;
+}
+.active:after {
+    content: "\2796";
+    /* Unicode character for "minus" sign (-) */
+}
+
+/* 
 .simulation-header-container{
     width : 50%;
 }
@@ -22,4 +58,4 @@
 
 .simulation-header-spacer{
     height : 34px;
-}
+} */
