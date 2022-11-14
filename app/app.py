@@ -85,7 +85,7 @@ def results():
     ddb_funcs.writeToDynamoMeta(app, entry_results)
     ddb_funcs.writeToDynamoData(app, entry_results)
         
-    return render_template('results.html', results = entry_results, espnId = espnId)
+    return render_template('results.html', results = entry_results, espnId = espnId, espnLink = link)
 
 @app.route('/<entryId>')
 def entrySummary(entryId):
@@ -122,7 +122,8 @@ def entrySummary(entryId):
 def simulationResult(entryId, simulationId):
     if invalidRoute(entryId):
         return "Invalid entry id!"
-    
+    print(entryId)
+    print(simulationId)
     # Need both meta data and response data read from tables
     read_kwargs = {'KeyConditionExpression' : "entry_id = :entryId and simulation_id = :simId",
                     'ExpressionAttributeValues' : {':entryId' :  int(entryId),

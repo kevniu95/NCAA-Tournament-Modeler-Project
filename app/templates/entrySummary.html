@@ -5,8 +5,13 @@
 	</head>
   <body>
 		<!-- Headings -->
-		<h1>ESPN Bracket Entry {{ metadata[0]['entry_id'] }} (<a href = "https://fantasy.espn.com/tournament-challenge-bracket/2022/en/entry?entryID={{ metadata[0]['entry_id'] }}" target = "_blank">view</a>)</h1>
-        
+		<h1 style="margin:0";>ESPN Bracket Entry {{ metadata[0]['entry_id'] }}</h1>
+		<span>
+			<a style="text-decoration: none; color:rgb(62, 49, 49); font-size:18px" href = "https://fantasy.espn.com/tournament-challenge-bracket/2022/en/entry?entryID={{ metadata[0]['entry_id'] }}" target = "_blank">
+				&#x2022;View ESPN Bracket
+				<img style="margin-top:5px" src = "{{ url_for('static',filename='img/logo_square.png') }}"  height = 14 width = 28>
+			</a>
+		</span>
 	</body>
     
     
@@ -26,21 +31,32 @@
     <h2>B. Last 25 Simulations</h2>
 	<table id="history" class="table table-striped">
 		<thead>
+		<tr>
+			<th></th>
+			<th style="outline:thin solid">  Percentile when...</th>
+			<th style="outline:thin solid">  Percentile when...</th>
+			<th style="outline:thin solid">  Percentile when...</th>
+			<th style="outline:thin solid">  Percentile when...</th>
+			<th></th>
+			<th></th>
+			<th></th>
+			<th></th>
+		</tr>
 		  <tr>
-			<th>Sim ID</th>
-			<th>Percentile (n = 100) </th>
-            <th>Percentile (n = 1K) </th>
-            <th>Percentile (n = 10K) </th>
-            <th>Percentile (n = 25K) </th>
-			<th>Sim Champion</th>
-			<th>Sim Final Four</th>
-            <th>Score</th>
-            <th>View</th>
-			</tr>
+			<th style="outline:thin solid">Sim ID</th>
+			<th style="outline:thin solid">n = 100 </th>
+            <th style="outline:thin solid">n = 1K </th>
+            <th style="outline:thin solid">n = 10K </th>
+            <th style="outline:thin solid">n = 25K </th>
+			<th style="outline:thin solid">Sim Champion</th>
+			<th style="outline:thin solid">Sim Final Four</th>
+            <th style="outline:thin solid">Score</th>
+            <th style="outline:thin solid">Sim page</th>
+		</tr>
 		</thead>
 		<tbody>
 			{% for i in metadata %}
-			<tr>
+			<tr style="outline:thin solid; outline-color:lightgray">
 			  <td align='center'>{{ i['simulation_id'] }}</td>
 			  <td align='center'>{{ i['entryAtSize']['100']['percentile'] }}%</td>
               <td align='center'>{{ i['entryAtSize']['1000']['percentile'] }}%</td>
@@ -60,15 +76,15 @@
               
 			  </tr>
 		  {% endfor %}
-          <tr style="outline: thin solid">
+          <tr style="outline: thin solid; background-color:rgba(233, 231, 231, 0.962)">
             <td align='center' style="outline: thin solid"><strong>Average</strong></td>
-            <td align='center' style="outline: thin solid"><strong>{{ entryAtSizeSumm['100'] }}%</strong></td>
-            <td align='center' style="outline: thin solid"><strong>{{ entryAtSizeSumm['1000'] }}%</strong></td>
-            <td align='center' style="outline: thin solid"><strong>{{ entryAtSizeSumm['10000'] }}%</strong></td>
-            <td align='center' style="outline: thin solid"><strong>{{ entryAtSizeSumm['25000'] }}%</strong></td>
+            <td align='center'><strong>{{ entryAtSizeSumm['100'] }}%</strong></td>
+            <td align='center'><strong>{{ entryAtSizeSumm['1000'] }}%</strong></td>
+            <td align='center'><strong>{{ entryAtSizeSumm['10000'] }}%</strong></td>
+            <td align='center'><strong>{{ entryAtSizeSumm['25000'] }}%</strong></td>
             <td align='center'></td>
             <td align='center'></td>
-            <td align='center' style="outline: thin solid"><strong>{{ scoreSumm }} / 1920</strong></td>
+            <td align='center'><strong>{{ scoreSumm }} / 1920</strong></td>
             <td align='center'></td>
         </tr>
       

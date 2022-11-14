@@ -5,55 +5,76 @@
 	</head>
   <body>
 		<!-- Headings -->
-		<h1>ESPN Bracket Entry {{ espnId }} (<a href = "{{ url_for('entrySummary', entryId = results['entry_id']) }}">view)</a> 
-			<br>Simulation #{{ results['simulation_id'] }}
-		</h1>
-		<h2>You scored {{ results['score'] }} points in this simulation!</h2>
-		
+		<div style="box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2); transition: 0.3s; width:80%;";>
+			<div style = "float:right">
+				<h1 style="margin:35px"> </h3>
+				<h2 style="margin:0; text-align:right">Score: {{ results['score'] }} pts</h2>
+			</div>	
+			<div>
+				<h1 style="margin:0">
+					<a href = "{{ url_for('entrySummary', entryId = results['entry_id']) }}"> ESPN Bracket Entry {{ espnId }}</a>
+				</h1>
+				<h2 style="margin:0">-Simulation #{{ results['simulation_id'] }}</h2>
+			</div>
+		</div>
 	</body>
-	<body>
+	<br>
+	<div class = "url-form">
+		<form action="{{ url_for('results')}}" method="POST">
+			<div>
+				<label>Want to simulate again?</label>
+			</div>
+			<input type="hidden" name ="espnLink" value = "{{ espnLink }}">
+			<input type="submit" name="submit" value="Submit">
+			<div>
+				<label>Or go back to the <a href = "{{ url_for('simulate') }}">home</a> page to simulate for another entry.</label>
+			</div>
+		</form>
+	</div>
+	<div>
+	<div>
 		<h3>A. Here's how that stacks up against your simulated competitors...</h3>
-	</body>
-
-	<table id="vsPool" class="table table-striped">
-		<thead>
-		  <tr>
-			<th># of competitors</th>
-			<th>Histogram</th>
-			<th>Percentile</th>
-			</tr>
-		</thead>
-		<tbody>
-		  {% for k, v in results['entryAtSize'].items() %}
-			<tr>
-			  <td align='right'>{{ k }}</td>
-			  <td> <img src = "data:image/png;base64, {{ v['histPlot'].decode('utf-8') }}" height = 250 width = 350> </td> 
-			  <td align='right'> {{ v['percentile']}}%</td>
-			  </tr>
-		  {% endfor %}
-		</tbody>
-	  </table>
-	<body>
-		<!-- Headings -->
-		<h3>B. Here's your performance against the simulated bracket...</h3>
-	</body>
+	
+		<table id="vsPool" class="table table-striped">
+			<thead>
+			  <tr>
+				<th># of competitors</th>
+				<th>Histogram</th>
+				<th>Percentile</th>
+				</tr>
+			</thead>
+			<tbody>
+			  {% for k, v in results['entryAtSize'].items() %}
+				<tr>
+				  <td align='right'>{{ k }}</td>
+				  <td> <img src = "data:image/png;base64, {{ v['histPlot'].decode('utf-8') }}" height = 250 width = 350> </td> 
+				  <td align='right'> {{ v['percentile']}}%</td>
+				  </tr>
+			  {% endfor %}
+			</tbody>
+		  </table>
+	</div>	
+	
+	<!-- Headings -->
+	<div>
+	<h3>B. Here's your performance against this simulated bracket...</h3>
 	<table id="vsSim" class="table table-striped">
 		<thead>
 		  <tr>
-			<th>Round</th>
-			<th>Game #</th>
-			<th>Simulated Winner</th>
-			<th>Your Selected Winner</th>
-			<th>Your Score</th>
+			<th style="outline: thin solid">Round</th>
+			<th style="outline: thin solid">Game #</th>
+			<th style="outline: thin solid">Simulated Winner</th>
+			<th style="outline: thin solid">Your Selected Winner</th>
+			<th style="outline: thin solid">Your Score</th>
 			</tr>
 		</thead>
 		<tbody>
-			<tr style="outline: thin solid">
-				<td align='center' style="outline: thin solid"><strong>Total</strong></td>
+			<tr>
+				<td align='center' style="font-size:24px"><strong>Total</strong></td>
 				<td align='center'></td>
 				<td align='center'></td>
 				<td align='center'></td>
-				<td align='center' style="outline: thin solid"><strong>{{ results['score']}} / 1920</strong></td>
+				<td align='center' style="font-size:24px"><strong>{{ results['score']}} / 1920</strong></td>
 			</tr>
 		  {% for i in results['visualization'] %}
 			<tr>
@@ -66,14 +87,16 @@
 		  {% endfor %}
 		</tbody>
 	  </table>
-
+	</div>
+	</div>
+	
 	<script>
 	var t = document.getElementById('vsSim');
 	if(t) {
 		Array.from(t.rows).forEach((tr, rowIdx) => {
 			Array.from(tr.cells).forEach((cell, cellIdx) => {
 				if (rowIdx == 1){
-					tr.style.backgroundColor = 'RGBA(0, 0, 0, 0.1)'
+					tr.style.backgroundColor = 'RGBA(0, 0, 0, 0.05)'
 				}
 				else if (cellIdx == 4 && rowIdx > 1){
 					if (cell.innerText.charAt(0) != '0'){

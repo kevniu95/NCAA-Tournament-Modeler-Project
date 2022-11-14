@@ -1,0 +1,25 @@
+.simulation-header-container{
+    width : 50%;
+}
+.simulation-header{
+    float : left;
+}
+
+.url-form{
+    margin: 10;
+}
+.simulation-header-info{
+    float : right;
+    text-align: right;
+}
+.simulation-header-container h1 {
+    margin: 0;
+}
+
+.simulation-header-container h2 {
+    margin: 0;
+}
+
+.simulation-header-spacer{
+    height : 34px;
+}
