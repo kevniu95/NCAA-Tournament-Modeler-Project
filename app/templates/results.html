@@ -5,24 +5,26 @@
 	</head>
   <body>
 		<!-- Headings -->
-		<div style="box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2); transition: 0.3s; width:80%;";>
+		<div style="box-shadow: 0 4px 8px 0 rgba(0,0,0,0.1); transition: 0.3s; width:80%;";>
 			<div style = "float:right">
 				<h1 style="margin:35px"> </h3>
 				<h2 style="margin:0; text-align:right">Score: {{ results['score'] }} pts</h2>
 			</div>	
 			<div>
 				<h1 style="margin:0">
-					<a href = "{{ url_for('entrySummary', entryId = results['entry_id']) }}"> ESPN Bracket Entry {{ espnId }}</a>
+					<a style="text-decoration: none; color:black" href = "{{ url_for('entrySummary', entryId = results['entry_id']) }}">ESPN Bracket Entry {{ espnId }}</a>
 				</h1>
-				<h2 style="margin:0">-Simulation #{{ results['simulation_id'] }}</h2>
+				<h2 style="margin:0">Simulation #{{ results['simulation_id'] }}</h2>
 			</div>
 		</div>
+	<a href = "{{ url_for('entrySummary', entryId = results['entry_id']) }}">View entry summary</a>
 	<br>
 	<div>
 	<br>
 	<div style="box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2); transition: 0.3s;">
 		<h2 style="margin:0">A. Performance against competitors</h2>
-		<h3>-Here's how the entry fared against its competitors in this simulation...</h3>
+		<h3 style="margin:0">-Here's how the entry fared against its competitors in this simulation...</h3>
+		<br>
 		<table id="vsPool" class="table table-striped">
 			<thead>
 			  <tr>
@@ -46,7 +48,8 @@
 	<!-- Headings -->
 	<div style="box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2); transition: 0.3s;">
 	<h2 style="margin:0">B. Correct picks</h2>
-	<h3>-Here's what the entry got right and wrong in this simulation...</h3>
+	<h3 style="margin:0">-Here's what the entry got right and wrong in this simulation...</h3>
+	<br>
 	<table id="vsSim" class="table table-striped">
 		<thead>
 		  <tr>

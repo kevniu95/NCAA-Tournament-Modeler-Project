@@ -5,14 +5,15 @@
 	</head>
   <body>
 	<!-- Headings -->
-	<h1 style="margin:0";>ESPN Bracket Entry {{ metadata[0]['entry_id'] }}</h1>
-	<span>
-		<a style="text-decoration: none; color:rgb(62, 49, 49); font-size:18px" href = "https://fantasy.espn.com/tournament-challenge-bracket/2022/en/entry?entryID={{ metadata[0]['entry_id'] }}" target = "_blank">
-			&#x2022;View ESPN Bracket
-			<img style="margin-top:0px" src = "{{ url_for('static',filename='img/logo_square.png') }}"  height = 14 width = 28>
-		</a>
-	</span>
-	<br>
+	<div>
+		<h1 style="margin:0";>ESPN Bracket Entry {{ metadata[0]['entry_id'] }}</h1>
+		<span>
+			<a style="text-decoration: none; color:rgb(62, 49, 49); font-size:18px" href = "https://fantasy.espn.com/tournament-challenge-bracket/2022/en/entry?entryID={{ metadata[0]['entry_id'] }}" target = "_blank">
+				&#x2022;View ESPN Bracket
+				<img style="margin-top:0px" src = "{{ url_for('static',filename='img/logo_square.png') }}"  height = 14 width = 28>
+			</a>
+		</span>
+		</div>
 	<br>
 	<!-- Headings -->
 	<div style="box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2); transition: 0.3s; width:25%">
