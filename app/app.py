@@ -1,6 +1,7 @@
 import sys 
 import uuid
 import time
+import decimal
 
 from flask import (Flask, abort, flash, redirect, render_template, 
   request, session, url_for, jsonify)
@@ -57,6 +58,7 @@ def results():
     entry_results = {'entry_id' : espnId,
                     'simulation_id' : sim_id,
                     'req_addr' : req_addr,
+                    'time' : decimal.Decimal(time.time()),
                     'score' : None,
                     'visualization' : None,
                     'entryAtSize' : {}}
