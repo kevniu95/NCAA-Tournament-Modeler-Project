@@ -4,92 +4,104 @@
 		<title>Entry Summary</title>
 	</head>
   <body>
-		<!-- Headings -->
-		<h1 style="margin:0";>ESPN Bracket Entry {{ metadata[0]['entry_id'] }}</h1>
-		<span>
-			<a style="text-decoration: none; color:rgb(62, 49, 49); font-size:18px" href = "https://fantasy.espn.com/tournament-challenge-bracket/2022/en/entry?entryID={{ metadata[0]['entry_id'] }}" target = "_blank">
-				&#x2022;View ESPN Bracket
-				<img style="margin-top:5px" src = "{{ url_for('static',filename='img/logo_square.png') }}"  height = 14 width = 28>
-			</a>
-		</span>
+	<!-- Headings -->
+	<h1 style="margin:0";>ESPN Bracket Entry {{ metadata[0]['entry_id'] }}</h1>
+	<span>
+		<a style="text-decoration: none; color:rgb(62, 49, 49); font-size:18px" href = "https://fantasy.espn.com/tournament-challenge-bracket/2022/en/entry?entryID={{ metadata[0]['entry_id'] }}" target = "_blank">
+			&#x2022;View ESPN Bracket
+			<img style="margin-top:0px" src = "{{ url_for('static',filename='img/logo_square.png') }}"  height = 14 width = 28>
+		</a>
+	</span>
+	<br>
+	<br>
+	<!-- Headings -->
+	<div style="box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2); transition: 0.3s; width:25%">
+	<h2>A. Your selections:</h2>
+	<p><strong>Champion</strong></p>            
+	<img align = 'center' src = "{{ metadata[0]['visualization'][0]['u_team']['img'] }}" height = 150 width = 150><br>
+	<p><strong>Final Four</strong><br>
+			<img src = "{{ metadata[0]['visualization'][3]['u_team']['img'] }}" height = 50 width = 50>
+			<img src = "{{ metadata[0]['visualization'][4]['u_team']['img'] }}" height = 50 width = 50>
+			<img src = "{{ metadata[0]['visualization'][5]['u_team']['img'] }}" height = 50 width = 50>
+			<img src = "{{ metadata[0]['visualization'][6]['u_team']['img'] }}" height = 50 width = 50>
+		</p>
+	</div>
+
+	<div class = "url-form">
+		<form action="{{ url_for('results')}}" method="POST">
+			<div>
+				<label>Submit to run a new simulation for this entry! Or return <a href = "{{ url_for('simulate') }}">home</a> to simulate another entry</label>
+			</div>
+			<input type="hidden" name ="espnLink" value = "{{ espnLink }}">
+			<input type="submit" name="submit" value="Submit">
+		</form>
+	</div>
+	<div>
+		<h2>B. Last 25 Simulations</h2>
+		<table id="history" class="table table-striped">
+			<thead>
+			<tr>
+				<th></th>
+				<th style="outline:thin solid">  Percentile when...</th>
+				<th style="outline:thin solid">  Percentile when...</th>
+				<th style="outline:thin solid">  Percentile when...</th>
+				<th style="outline:thin solid">  Percentile when...</th>
+				<th></th>
+				<th></th>
+				<th></th>
+				<th></th>
+			</tr>
+			<tr>
+				<th style="outline:thin solid">Sim ID</th>
+				<th style="outline:thin solid">n = 100 </th>
+				<th style="outline:thin solid">n = 1K </th>
+				<th style="outline:thin solid">n = 10K </th>
+				<th style="outline:thin solid">n = 25K </th>
+				<th style="outline:thin solid">Sim Champion</th>
+				<th style="outline:thin solid">Sim Final Four</th>
+				<th style="outline:thin solid">Entry Score</th>
+				<th style="outline:thin solid">Sim page</th>
+			</tr>
+			</thead>
+			<tbody>
+				{% for i in metadata %}
+				<tr style="outline:thin solid; outline-color:lightgray">
+				<td align='center'>{{ i['simulation_id'] }}</td>
+				<td align='center'>{{ i['entryAtSize']['100']['percentile'] }}%</td>
+				<td align='center'>{{ i['entryAtSize']['1000']['percentile'] }}%</td>
+				<td align='center'>{{ i['entryAtSize']['10000']['percentile'] }}%</td>
+				<td align='center'>{{ i['entryAtSize']['25000']['percentile'] }}%</td>
+				<td align='center'><img src = "{{ i['visualization'][0]['c_team']['img'] }}" height = 30 width = 30> </td>
+				<td align='center'>
+					<img src = "{{ i['visualization'][3]['c_team']['img'] }}" height = 30 width = 30> 
+					<img src = "{{ i['visualization'][4]['c_team']['img'] }}" height = 30 width = 30> 
+					<img src = "{{ i['visualization'][5]['c_team']['img'] }}" height = 30 width = 30> 
+					<img src = "{{ i['visualization'][6]['c_team']['img'] }}" height = 30 width = 30> 
+					</td>            
+				<td align='center' style="outline:thin solid"><strong>{{ i['score'] }} / 1920</strong></td>
+				<td align='center'>
+					<a href = "{{ url_for('simulationResult', entryId = i['entry_id'], simulationId = i['simulation_id'])}}">View</a>
+				</td>
+				
+				</tr>
+			{% endfor %}
+			<tr style="outline: thin solid; background-color:rgba(233, 231, 231, 0.962)">
+				<td align='center' style="outline: thin solid"><strong>Average</strong></td>
+				<td align='center'><strong>{{ entryAtSizeSumm['100'] }}%</strong></td>
+				<td align='center'><strong>{{ entryAtSizeSumm['1000'] }}%</strong></td>
+				<td align='center'><strong>{{ entryAtSizeSumm['10000'] }}%</strong></td>
+				<td align='center'><strong>{{ entryAtSizeSumm['25000'] }}%</strong></td>
+				<td align='center'></td>
+				<td align='center'></td>
+				<td align='center' style="outline:thin solid"><strong>{{ scoreSumm }} / 1920</strong></td>
+				<td align='center'></td>
+			</tr>
+		
+			</tbody>
+		</table>
+	</div>
 	</body>
     
-    
-	<body>
-		<!-- Headings -->
-        <h2>A. Your selections:</h2>
-        <p><strong>Champion</strong></p>            
-        <img align = 'center' src = "{{ metadata[0]['visualization'][0]['u_team']['img'] }}" height = 150 width = 150><br>
-        <p><strong>Final Four</strong><br>
-                <img src = "{{ metadata[0]['visualization'][3]['u_team']['img'] }}" height = 50 width = 50>
-                <img src = "{{ metadata[0]['visualization'][4]['u_team']['img'] }}" height = 50 width = 50>
-                <img src = "{{ metadata[0]['visualization'][5]['u_team']['img'] }}" height = 50 width = 50>
-                <img src = "{{ metadata[0]['visualization'][6]['u_team']['img'] }}" height = 50 width = 50>
-            </p>
-	</body>
-    <br>
-    <h2>B. Last 25 Simulations</h2>
-	<table id="history" class="table table-striped">
-		<thead>
-		<tr>
-			<th></th>
-			<th style="outline:thin solid">  Percentile when...</th>
-			<th style="outline:thin solid">  Percentile when...</th>
-			<th style="outline:thin solid">  Percentile when...</th>
-			<th style="outline:thin solid">  Percentile when...</th>
-			<th></th>
-			<th></th>
-			<th></th>
-			<th></th>
-		</tr>
-		  <tr>
-			<th style="outline:thin solid">Sim ID</th>
-			<th style="outline:thin solid">n = 100 </th>
-            <th style="outline:thin solid">n = 1K </th>
-            <th style="outline:thin solid">n = 10K </th>
-            <th style="outline:thin solid">n = 25K </th>
-			<th style="outline:thin solid">Sim Champion</th>
-			<th style="outline:thin solid">Sim Final Four</th>
-            <th style="outline:thin solid">Entry Score</th>
-            <th style="outline:thin solid">Sim page</th>
-		</tr>
-		</thead>
-		<tbody>
-			{% for i in metadata %}
-			<tr style="outline:thin solid; outline-color:lightgray">
-			  <td align='center'>{{ i['simulation_id'] }}</td>
-			  <td align='center'>{{ i['entryAtSize']['100']['percentile'] }}%</td>
-              <td align='center'>{{ i['entryAtSize']['1000']['percentile'] }}%</td>
-              <td align='center'>{{ i['entryAtSize']['10000']['percentile'] }}%</td>
-              <td align='center'>{{ i['entryAtSize']['25000']['percentile'] }}%</td>
-              <td align='center'><img src = "{{ i['visualization'][0]['c_team']['img'] }}" height = 30 width = 30> </td>
-              <td align='center'>
-                <img src = "{{ i['visualization'][3]['c_team']['img'] }}" height = 30 width = 30> 
-                <img src = "{{ i['visualization'][4]['c_team']['img'] }}" height = 30 width = 30> 
-                <img src = "{{ i['visualization'][5]['c_team']['img'] }}" height = 30 width = 30> 
-                <img src = "{{ i['visualization'][6]['c_team']['img'] }}" height = 30 width = 30> 
-                </td>            
-              <td align='center' style="outline:thin solid"><strong>{{ i['score'] }} / 1920</strong></td>
-              <td align='center'>
-                <a href = "{{ url_for('simulationResult', entryId = i['entry_id'], simulationId = i['simulation_id'])}}">View</a>
-              </td>
-              
-			  </tr>
-		  {% endfor %}
-          <tr style="outline: thin solid; background-color:rgba(233, 231, 231, 0.962)">
-            <td align='center' style="outline: thin solid"><strong>Average</strong></td>
-            <td align='center'><strong>{{ entryAtSizeSumm['100'] }}%</strong></td>
-            <td align='center'><strong>{{ entryAtSizeSumm['1000'] }}%</strong></td>
-            <td align='center'><strong>{{ entryAtSizeSumm['10000'] }}%</strong></td>
-            <td align='center'><strong>{{ entryAtSizeSumm['25000'] }}%</strong></td>
-            <td align='center'></td>
-            <td align='center'></td>
-            <td align='center' style="outline:thin solid"><strong>{{ scoreSumm }} / 1920</strong></td>
-            <td align='center'></td>
-        </tr>
-      
-		</tbody>
-	  </table>
 
 	<script>
 	var t = document.getElementById('vsSim');

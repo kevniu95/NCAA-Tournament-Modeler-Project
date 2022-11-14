@@ -17,25 +17,12 @@
 				<h2 style="margin:0">-Simulation #{{ results['simulation_id'] }}</h2>
 			</div>
 		</div>
-	</body>
 	<br>
-	<div class = "url-form">
-		<form action="{{ url_for('results')}}" method="POST">
-			<div>
-				<label>Want to simulate again?</label>
-			</div>
-			<input type="hidden" name ="espnLink" value = "{{ espnLink }}">
-			<input type="submit" name="submit" value="Submit">
-			<div>
-				<label>Or go back to the <a href = "{{ url_for('simulate') }}">home</a> page to simulate for another entry.</label>
-			</div>
-		</form>
-	</div>
 	<div>
 	<br>
 	<div style="box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2); transition: 0.3s;">
 		<h2 style="margin:0">A. Performance against competitors</h2>
-		<h3>-Here's how bracket entry {{espnId}} fared against its competitors in this simulation...</h3>
+		<h3>-Here's how the entry fared against its competitors in this simulation...</h3>
 		<table id="vsPool" class="table table-striped">
 			<thead>
 			  <tr>
@@ -59,7 +46,7 @@
 	<!-- Headings -->
 	<div style="box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2); transition: 0.3s;">
 	<h2 style="margin:0">B. Correct picks</h2>
-	<h3>-Here's what bracket {{espnId}} got right and wrong in this simulation...</h3>
+	<h3>-Here's what the entry got right and wrong in this simulation...</h3>
 	<table id="vsSim" class="table table-striped">
 		<thead>
 		  <tr>
@@ -91,6 +78,17 @@
 	  </table>
 	</div>
 	</div>
+	<br>
+	<div class = "url-form">
+		<form action="{{ url_for('results')}}" method="POST">
+			<div>
+				<label>Submit to simulate again! Or return <a href = "{{ url_for('simulate') }}">home</a> to simulate another entry</label>
+			</div>
+			<input type="hidden" name ="espnLink" value = "{{ espnLink }}">
+			<input type="submit" name="submit" value="Submit">
+		</form>
+	</div>
+	</body>
 	
 	<script>
 	var t = document.getElementById('vsSim');
